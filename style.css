@@ -1,0 +1,446 @@
+/* =========================
+   RESET
+========================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+/* =========================
+   BODY
+========================= */
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f5f7fb;
+    color: #1f2937;
+}
+
+
+/* =========================
+   HEADER
+========================= */
+
+header {
+    background: white;
+
+    padding: 20px 50px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    border-bottom: 1px solid #e5e7eb;
+
+    position: sticky;
+    top: 0;
+
+    z-index: 1000;
+}
+
+
+header h1 {
+    font-size: 26px;
+    color: #4f46e5;
+}
+
+
+nav {
+    display: flex;
+    gap: 28px;
+}
+
+
+nav a {
+    text-decoration: none;
+
+    color: #374151;
+
+    font-size: 15px;
+
+    font-weight: 600;
+
+    transition: 0.2s;
+}
+
+
+nav a:hover {
+    color: #4f46e5;
+}
+
+
+/* =========================
+   HERO SECTION
+========================= */
+
+.hero {
+    max-width: 1000px;
+
+    margin: 50px auto 35px;
+
+    padding: 60px 30px;
+
+    text-align: center;
+
+    background: linear-gradient(
+        135deg,
+        #eef2ff,
+        #ffffff
+    );
+
+    border-radius: 24px;
+
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+}
+
+
+.hero h2 {
+    font-size: 38px;
+
+    margin-bottom: 12px;
+
+    color: #111827;
+}
+
+
+.hero p {
+    color: #6b7280;
+
+    font-size: 17px;
+
+    margin-bottom: 30px;
+}
+
+
+/* =========================
+   SEARCH BOX
+========================= */
+
+.search-box {
+    max-width: 700px;
+
+    margin: auto;
+
+    display: flex;
+
+    background: white;
+
+    padding: 8px;
+
+    border-radius: 12px;
+
+    box-shadow: 0 8px 25px rgba(15, 23, 42, 0.10);
+}
+
+
+.search-box input {
+    flex: 1;
+
+    border: none;
+
+    outline: none;
+
+    padding: 14px;
+
+    font-size: 15px;
+}
+
+
+.search-box button {
+    border: none;
+
+    background: #4f46e5;
+
+    color: white;
+
+    padding: 0 22px;
+
+    border-radius: 9px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+
+.search-box button:hover {
+    background: #4338ca;
+
+    transform: translateY(-1px);
+}
+
+
+/* =========================
+   POPULAR LOCATIONS
+========================= */
+
+.locations,
+.pg-section {
+    max-width: 1100px;
+
+    margin: 0 auto 40px;
+
+    padding: 0 25px;
+}
+
+
+.locations h2,
+.pg-section h2 {
+    font-size: 22px;
+
+    margin-bottom: 20px;
+
+    color: #111827;
+}
+
+
+.location-list {
+    display: flex;
+
+    gap: 12px;
+
+    flex-wrap: wrap;
+}
+
+
+.location-list button {
+    border: 1px solid #e0e7ff;
+
+    background: white;
+
+    color: #4f46e5;
+
+    padding: 11px 18px;
+
+    border-radius: 25px;
+
+    cursor: pointer;
+
+    font-weight: 600;
+
+    transition: 0.2s;
+}
+
+
+.location-list button:hover {
+    background: #4f46e5;
+
+    color: white;
+}
+
+
+/* =========================
+   PG CARDS
+========================= */
+
+.pg-container {
+    display: grid;
+
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 24px;
+}
+
+
+.pg-card {
+    background: white;
+
+    padding: 18px;
+
+    border-radius: 18px;
+
+    border: 1px solid #e5e7eb;
+
+    box-shadow: 0 8px 25px rgba(15, 23, 42, 0.06);
+
+    transition: 0.25s;
+}
+
+
+.pg-card:hover {
+    transform: translateY(-6px);
+
+    box-shadow: 0 15px 35px rgba(15, 23, 42, 0.12);
+}
+
+
+/* =========================
+   PG IMAGE
+========================= */
+
+.pg-image {
+    height: 180px;
+
+    background: #eef2ff;
+
+    border-radius: 13px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 65px;
+
+    margin-bottom: 18px;
+}
+
+
+.pg-card h3 {
+    font-size: 20px;
+
+    margin-bottom: 10px;
+
+    color: #111827;
+}
+
+
+.pg-card p {
+    margin-bottom: 8px;
+
+    color: #6b7280;
+
+    font-size: 14px;
+}
+
+
+.pg-card p:last-of-type {
+    color: #4f46e5;
+
+    font-size: 18px;
+
+    font-weight: 700;
+
+    margin-top: 12px;
+}
+
+
+/* =========================
+   VIEW DETAILS BUTTON
+========================= */
+
+.pg-card button {
+    width: 100%;
+
+    padding: 12px;
+
+    margin-top: 10px;
+
+    border: none;
+
+    border-radius: 9px;
+
+    background: #4f46e5;
+
+    color: white;
+
+    font-size: 15px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+
+.pg-card button:hover {
+    background: #4338ca;
+}
+
+
+/* =========================
+   FOOTER
+========================= */
+
+footer {
+    margin-top: 60px;
+
+    padding: 30px;
+
+    text-align: center;
+
+    background: white;
+
+    color: #6b7280;
+
+    font-size: 14px;
+
+    border-top: 1px solid #e5e7eb;
+}
+
+
+/* =========================
+   MOBILE RESPONSIVE
+========================= */
+
+@media (max-width: 800px) {
+
+    header {
+        padding: 18px 20px;
+    }
+
+
+    header h1 {
+        font-size: 21px;
+    }
+
+
+    nav {
+        gap: 12px;
+    }
+
+
+    nav a {
+        font-size: 13px;
+    }
+
+
+    .hero {
+        margin: 25px 15px;
+
+        padding: 40px 18px;
+    }
+
+
+    .hero h2 {
+        font-size: 29px;
+    }
+
+
+    .search-box {
+        flex-direction: column;
+
+        gap: 8px;
+
+        background: transparent;
+
+        box-shadow: none;
+    }
+
+
+    .search-box input {
+        background: white;
+
+        border-radius: 9px;
+
+        box-shadow: 0 5px 15px rgba(15, 23, 42, 0.08);
+    }
+
+
+    .search-box button {
+        padding: 13px;
+    }
+
+
+    .pg-container {
+        grid-template-columns: 1fr;
+    }
+
+}
