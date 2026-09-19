@@ -96,11 +96,14 @@
 
             <div class="location-list">
 
-                <button>📍 Near College</button>
-                <button>🚇 Near Metro</button>
-                <button>🛍️ Near Market</button>
-                <button>🚌 Near Bus Stand</button>
+               <div class="location-list">
 
+    <button onclick="filterLocation('college')">📍 Near College</button>
+    <button onclick="filterLocation('metro')">🚇 Near Metro</button>
+    <button onclick="filterLocation('market')">🛍️ Near Market</button>
+    <button onclick="filterLocation('bus')">🚌 Near Bus Stand</button>
+
+</div>
             </div>
 
         </section>
@@ -149,7 +152,7 @@
                         </div>
 
                         <p class="location-text">
-                            📍 Near College
+                            📍 Ghaziabad
                         </p>
 
                         <div class="facilities">
@@ -202,7 +205,7 @@
                         </div>
 
                         <p class="location-text">
-                            📍 City Center
+                            📍 noida
                         </p>
 
                         <div class="facilities">
@@ -255,7 +258,7 @@
                         </div>
 
                         <p class="location-text">
-                            📍 Near Metro
+                            📍 Delhi
                         </p>
 
                         <div class="facilities">
@@ -284,6 +287,7 @@
                 </div>
 
             </div>
+            <p id="noResults" style="display: none;">No PG found for this location.</p>
 
         </section>
 
@@ -322,6 +326,22 @@
 
     </main>
 
+    <!--===========PG DETAILS=========-->>
+<section id="pgDetails" class="pg-details" style="display: none;">
+
+    <button id="closeDetails">✕ Close</button>
+
+    <h2 id="detailName"></h2>
+
+    <p id="detailLocation"></p>
+
+    <p id="detailRent"></p>
+
+    <h3>Facilities</h3>
+
+    <p id="detailFacilities"></p>
+
+</section>
 
     <!-- ================= FOOTER ================= -->
 

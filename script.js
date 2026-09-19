@@ -57,18 +57,21 @@ favoriteButtons.forEach(function(button, index) {
 const pgData = [
     {
         name: "Sunrise PG",
-        location: "Near College",
-        rent: 7000
+        location: "Ghaziabad",
+        rent: 7000,
+        category: "college"
     },
     {
         name: "Student Home PG",
-        location: "City Center",
-        rent: 6500
+        location: "Noida",
+        rent: 6500,
+        category:"metro"
     },
     {
         name: "Green View PG",
-        location: "Near Metro",
-        rent: 8000
+        location: "Delhi",
+        rent: 8000,
+        category:"market"
     }
 ];
 // =========================
@@ -122,4 +125,68 @@ if (results.length > 0) {
 if (results.length === 0) {
     alert("No PG found. Try another search.");
 }
+});
+// =========================
+// POPULAR LOCATION FILTER
+// =========================
+
+function filterLocation(type) {
+    const noResults = document.getElementById("noResults");
+
+    pgCards.forEach(function(card, index) {
+
+        const pg = pgData[index];
+
+        if (pg.category === type) {
+            card.style.display = "block";
+        } else {
+            card.style.display = "none";
+        }
+        if (type === "bus") {
+    noResults.style.display = "block";
+} else {
+    noResults.style.display = "none";
+}
+
+    });
+
+}
+// =========================
+// VIEW DETAILS
+// =========================
+
+const detailButtons = document.querySelectorAll(".details-btn");
+
+detailButtons.forEach(function(button, index) {
+
+    button.addEventListener("click", function() {
+
+        const pg = pgData[index];
+
+        document.getElementById("detailName").textContent = pg.name;
+        document.getElementById("detailLocation").textContent = "📍 " + pg.location;
+        document.getElementById("detailRent").textContent = "₹" + pg.rent + " / month";
+
+        document.getElementById("detailFacilities").textContent =
+            "Wi-Fi • Food • Laundry";
+
+        document.getElementById("pgDetails").style.display = "block";
+
+        document.getElementById("pgDetails").scrollIntoView({
+            behavior: "smooth"
+        });
+
+    });
+
+});
+// =========================
+// CLOSE PG DETAILS
+// =========================
+
+const closeDetails = document.getElementById("closeDetails");
+
+closeDetails.addEventListener("click", function() {
+
+    document.getElementById("pgDetails").style.display = "none";
+
 });
