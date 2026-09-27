@@ -154,6 +154,9 @@ function filterLocation(type) {
 // =========================
 // VIEW DETAILS
 // =========================
+// =========================
+// VIEW DETAILS
+// =========================
 
 const detailButtons = document.querySelectorAll(".details-btn");
 
@@ -161,20 +164,7 @@ detailButtons.forEach(function(button, index) {
 
     button.addEventListener("click", function() {
 
-        const pg = pgData[index];
-
-        document.getElementById("detailName").textContent = pg.name;
-        document.getElementById("detailLocation").textContent = "📍 " + pg.location;
-        document.getElementById("detailRent").textContent = "₹" + pg.rent + " / month";
-
-        document.getElementById("detailFacilities").textContent =
-            "Wi-Fi • Food • Laundry";
-
-        document.getElementById("pgDetails").style.display = "block";
-
-        document.getElementById("pgDetails").scrollIntoView({
-            behavior: "smooth"
-        });
+        window.location.href = "pg-details.html?pg="+ index;
 
     });
 

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>PG Details - NextStay</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="pg-details-page">
+
+        <h1 id="detailName">PG Name</h1>
+
+        <p id="detailLocation">📍 Location</p>
+
+        <p id="detailRent">₹0 / month</p>
+
+        <h2>Facilities</h2>
+
+        <p id="detailFacilities">Wi-Fi • Food • Laundry</p>
+
+        <button>Request Visit</button>
+        <button>Contact Owner</button>
+
+        <br><br>
+
+        <a href="index.html">← Back to PGs</a>
+
+    </div>
+
+
+    <script>
+
+        const pgData = [
+            {
+                name: "Sunrise PG",
+                location: "Ghaziabad",
+                rent: 7000,
+                facilities: "Wi-Fi • Food • Laundry"
+            },
+            {
+                name: "Student Home PG",
+                location: "Noida",
+                rent: 6500,
+                facilities: "Wi-Fi • Food • Security"
+            },
+            {
+                name: "Green View PG",
+                location: "Delhi",
+                rent: 8000,
+                facilities: "Wi-Fi • Laundry • Security"
+            }
+        ];
+
+
+        const params = new URLSearchParams(window.location.search);
+
+        const index = Number(params.get("pg"));
+
+        const pg = pgData[index];
+
+
+        if (pg) {
+
+            document.getElementById("detailName").textContent = pg.name;
+
+            document.getElementById("detailLocation").textContent =
+                "📍 " + pg.location;
+
+            document.getElementById("detailRent").textContent =
+                "₹" + pg.rent + " / month";
+
+            document.getElementById("detailFacilities").textContent =
+                pg.facilities;
+
+        }
+
+    </script>
+
+</body>
+
+</html>

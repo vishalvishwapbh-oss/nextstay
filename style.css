@@ -583,3 +583,74 @@ footer p {
     font-weight: 600;
     cursor: pointer;
 }
+/* =========================
+   PG DETAILS PAGE
+========================= */
+
+.pg-details-page {
+    max-width: 800px;
+    margin: 60px auto;
+    padding: 40px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.pg-details-page h1 {
+    font-size: 32px;
+    margin-bottom: 12px;
+}
+
+.pg-details-page p {
+    font-size: 17px;
+    margin: 12px 0;
+}
+
+.pg-details-page h2 {
+    margin-top: 30px;
+    margin-bottom: 10px;
+}
+/* =========================
+   PG DETAILS PAGE
+========================= */
+
+.pg-details-page {
+    max-width: 700px;
+    margin: 60px auto;
+    padding: 35px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.10);
+    text-align: center;
+}
+
+.pg-details-page h1 {
+    font-size: 32px;
+    margin-bottom: 15px;
+}
+
+.pg-details-page p {
+    font-size: 18px;
+    margin: 12px 0;
+}
+
+.pg-details-page h2 {
+    margin-top: 30px;
+    margin-bottom: 10px;
+}
+
+.pg-details-page button {
+    padding: 12px 22px;
+    margin: 20px 6px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.pg-details-page a {
+    display: inline-block;
+    margin-top: 15px;
+    text-decoration: none;
+    font-weight: 600;
+}
