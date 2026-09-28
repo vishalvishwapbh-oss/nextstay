@@ -13,6 +13,7 @@
 <body>
 
     <div class="pg-details-page">
+        <img id="detailImage" src="" alt="PG Room">
 
         <h1 id="detailName">PG Name</h1>
 
@@ -24,8 +25,36 @@
 
         <p id="detailFacilities">Wi-Fi • Food • Laundry</p>
 
-        <button>Request Visit</button>
-        <button>Contact Owner</button>
+        <button id="requestVisitBtn">Request Visit</button>
+        <div id="visitForm" class="visit-form">
+
+    <h2>Request a Visit</h2>
+
+    <input type="text" id="visitorName" placeholder="Your Name">
+
+    <input type="tel" id="visitorPhone" placeholder="Phone Number">
+
+    <input type="date" id="visitDate">
+
+    <button id="submitVisit">Submit Request</button>
+
+</div>
+        <button id="contactOwnerBtn">Contact Owner</button>
+        <div id="ownerPopup" class="owner-popup">
+
+    <div class="owner-popup-box">
+
+        <button id="closeOwnerPopup" class="close-popup">×</button>
+
+        <h2>Contact Owner</h2>
+
+        <p>📞 +91 98765 43210</p>
+        
+    <a href="tel:+919876543210" class="call-owner">Call Owner</a>
+
+    </div>
+
+</div>
 
         <br><br>
 
@@ -41,19 +70,24 @@
                 name: "Sunrise PG",
                 location: "Ghaziabad",
                 rent: 7000,
-                facilities: "Wi-Fi • Food • Laundry"
+                facilities: "Wi-Fi • Food • Laundry",
+                image: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267"
             },
             {
                 name: "Student Home PG",
                 location: "Noida",
                 rent: 6500,
-                facilities: "Wi-Fi • Food • Security"
+                facilities: "Wi-Fi • Food • Security",
+                image: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85"
+
+                
             },
             {
                 name: "Green View PG",
                 location: "Delhi",
                 rent: 8000,
-                facilities: "Wi-Fi • Laundry • Security"
+                facilities: "Wi-Fi • Laundry • Security",
+                image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2"
             }
         ];
 
@@ -77,9 +111,51 @@
 
             document.getElementById("detailFacilities").textContent =
                 pg.facilities;
+                document.getElementById("detailImage").src = pg.image;
 
         }
+       const requestVisitBtn = document.getElementById("requestVisitBtn");
 
+requestVisitBtn.addEventListener("click", function() {
+
+    document.getElementById("visitForm").style.display = "block";
+
+});
+const contactOwnerBtn = document.getElementById("contactOwnerBtn");
+
+const ownerPopup = document.getElementById("ownerPopup");
+
+const closeOwnerPopup = document.getElementById("closeOwnerPopup");
+
+
+contactOwnerBtn.addEventListener("click", function() {
+
+    ownerPopup.style.display = "flex";
+
+});
+
+
+closeOwnerPopup.addEventListener("click", function() {
+
+    ownerPopup.style.display = "none";
+
+});
+const submitVisit = document.getElementById("submitVisit");
+
+submitVisit.addEventListener("click", function() {
+
+    const name = document.getElementById("visitorName").value.trim();
+    const phone = document.getElementById("visitorPhone").value.trim();
+    const date = document.getElementById("visitDate").value;
+
+    if (name === "" || phone === "" || date === "") {
+        alert("Please fill all details.");
+        return;
+    }
+
+    alert("Visit request submitted successfully!");
+
+});
     </script>
 
 </body>
