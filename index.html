@@ -25,6 +25,7 @@
             <a href="#find-pg">Find PG</a>
             <a href="#favorites">Favorites</a>
             <a href="#login">Login</a>
+            <a href="admin.html">Admin Login</a>
         </nav>
 
     </header>
@@ -124,169 +125,10 @@
 
             </div>
 
-
-            <div class="pg-container">
-
-
-                <!-- PG CARD 1 -->
-
-                <div class="pg-card">
-
-                    <div class="pg-image">
-                        🏠
-
-                        <button class="favorite-btn">
-                            ♡
-                        </button>
-
-                    </div>
-
-                    <div class="pg-info">
-
-                        <div class="pg-title">
-
-                            <h3>Sunrise PG</h3>
-
-                            <span>⭐ 4.5</span>
-
-                        </div>
-
-                        <p class="location-text">
-                            📍 Ghaziabad
-                        </p>
-
-                        <div class="facilities">
-
-                            <span>Wi-Fi</span>
-                            <span>Food</span>
-                            <span>Laundry</span>
-
-                        </div>
-
-                        <div class="pg-bottom">
-
-                            <p>
-                                <strong>₹7,000</strong>
-                                <small>/ month</small>
-                            </p>
-
-                            <button class="details-btn">
-                                View Details
-                            </button>
-
-                        </div>
-
-                    </div>
-
+               <div class="pg-container" id="pgContainer">
                 </div>
 
-
-                <!-- PG CARD 2 -->
-
-                <div class="pg-card">
-
-                    <div class="pg-image">
-                        🏢
-
-                        <button class="favorite-btn">
-                            ♡
-                        </button>
-
-                    </div>
-
-                    <div class="pg-info">
-
-                        <div class="pg-title">
-
-                            <h3>Student Home PG</h3>
-
-                            <span>⭐ 4.2</span>
-
-                        </div>
-
-                        <p class="location-text">
-                            📍 noida
-                        </p>
-
-                        <div class="facilities">
-
-                            <span>AC</span>
-                            <span>Wi-Fi</span>
-                            <span>Food</span>
-
-                        </div>
-
-                        <div class="pg-bottom">
-
-                            <p>
-                                <strong>₹6,500</strong>
-                                <small>/ month</small>
-                            </p>
-
-                            <button class="details-btn">
-                                View Details
-                            </button>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <!-- PG CARD 3 -->
-
-                <div class="pg-card">
-
-                    <div class="pg-image">
-                        🏡
-
-                        <button class="favorite-btn">
-                            ♡
-                        </button>
-
-                    </div>
-
-                    <div class="pg-info">
-
-                        <div class="pg-title">
-
-                            <h3>Green View PG</h3>
-
-                            <span>⭐ 4.7</span>
-
-                        </div>
-
-                        <p class="location-text">
-                            📍 Delhi
-                        </p>
-
-                        <div class="facilities">
-
-                            <span>AC</span>
-                            <span>Parking</span>
-                            <span>Wi-Fi</span>
-
-                        </div>
-
-                        <div class="pg-bottom">
-
-                            <p>
-                                <strong>₹8,000</strong>
-                                <small>/ month</small>
-                            </p>
-
-                            <button class="details-btn">
-                                View Details
-                            </button>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
+            
             <p id="noResults" style="display: none;">No PG found for this location.</p>
 
         </section>
@@ -359,7 +201,7 @@
 
     </footer>
 
-
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="script.js"></script>
 
 </body>

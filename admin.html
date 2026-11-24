@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NextStay Admin Login</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="admin-login-page">
+        <h1>NextStay Admin</h1>
+        <h2>Admin Login</h2>
+
+        <input type="email" id="adminEmail"
+               placeholder="Enter Admin Email">
+
+        <input type="password" id="adminPassword"
+               placeholder="Enter Password">
+
+        <button id="loginBtn">Login</button>
+
+        <p id="loginMessage"></p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        const SUPABASE_URL = "https://oiczndyhuzcsrpzoaunk.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_zwImJd2xLY8y4E-m59JLGw_s4nEctEi";
+
+        const supabaseClient = window.supabase.createClient(
+            SUPABASE_URL,
+            SUPABASE_KEY
+        );
+
+        document.getElementById("loginBtn").addEventListener("click", async function() {
+
+            const email = document.getElementById("adminEmail").value.trim();
+            const password = document.getElementById("adminPassword").value;
+
+            const { data, error } = await supabaseClient.auth.signInWithPassword({
+                email: email,
+                password: password
+            });
+
+            if (error) {
+                document.getElementById("loginMessage").textContent =
+                    "Login failed. Check your email and password.";
+                return;
+            }
+
+            if (data.user.id !== "d22e485f-9f3a-4d9d-bcbb-5a7cdca42708") {
+                await supabaseClient.auth.signOut();
+
+                document.getElementById("loginMessage").textContent =
+                    "Access denied. Admin only.";
+                return;
+            }
+
+            window.location.href = "admin-dashboard.html";
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NextStay Admin Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="admin-dashboard">
+        <h1>NextStay Admin Dashboard</h1>
+
+        <a href="index.html">
+        <button type="button">View Website</button>
+</a>
+
+<button id="logoutBtn">Logout</button>
+<div class="admin-stats">
+
+    <div class="stat-card">
+        <h3>Total PGs</h3>
+        <p id="totalPGs">0</p>
+    </div>
+
+    <div class="stat-card">
+        <h3>Total Requests</h3>
+        <p id="totalRequests">0</p>
+    </div>
+
+</div>
+         <h2>Add New PG</h2>
+
+<div class="pg-info">
+    <input type="text" id="pgName" placeholder="PG Name">
+    <br><br>
+
+    <input type="text" id="pgLocation" placeholder="Location">
+    <br><br>
+
+    <input type="number" id="pgRent" placeholder="Monthly Rent">
+    <br><br>
+
+    <input type="text" id="pgCategory" placeholder="Category">
+    <br><br>
+
+    <input type="text" id="pgFacilities" placeholder="Facilities (Wi-Fi, Food, AC)">
+    <br><br>
+
+    <input type="text" id="pgImage" placeholder="Image URL">
+    <br><br>
+
+    <button id="addPGBtn">Add PG</button>
+    <p id="pgMessage"></p>
+</div>
+
+<hr>
+    <hr>
+
+<h2>Manage PG Listings</h2>
+
+<div id="pgListContainer">
+    <p>Loading PG listings...</p>
+</div>
+        <h2>Visit Requests</h2>
+        <p id="requestCount">Loading requests...</p>
+
+        <div id="requestsContainer"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        const SUPABASE_URL = "https://oiczndyhuzcsrpzoaunk.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_zwImJd2xLY8y4E-m59JLGw_s4nEctEi";
+        const ADMIN_UID = "d22e485f-9f3a-4d9d-bcbb-5a7cdca42708";
+
+        const supabaseClient = window.supabase.createClient(
+            SUPABASE_URL,
+            SUPABASE_KEY
+        );
+         document.getElementById("addPGBtn")
+    .addEventListener("click", async function() {
+
+        const name = document.getElementById("pgName").value.trim();
+        const location = document.getElementById("pgLocation").value.trim();
+        const rent = Number(document.getElementById("pgRent").value);
+        const category = document.getElementById("pgCategory").value.trim();
+        const facilitiesText = document.getElementById("pgFacilities").value.trim();
+        const image = document.getElementById("pgImage").value.trim();
+
+        const message = document.getElementById("pgMessage");
+
+        if (!name || !location || !rent || !category || !facilitiesText || !image) {
+            message.textContent = "Please fill all fields.";
+            return;
+        }
+
+        const facilities = facilitiesText.split(",").map(item => item.trim());
+
+        const { error } = await supabaseClient
+            .from("pg_listings")
+            .insert([{
+                name: name,
+                location: location,
+                rent: rent,
+                category: category,
+                facilities: facilities,
+                image_url: image
+            }]);
+
+        if (error) {
+            console.log("Add PG Error:", error);
+            message.textContent = "PG could not be added.";
+            return;
+        }
+
+        message.textContent = "PG added successfully!";
+
+        document.getElementById("pgName").value = "";
+        document.getElementById("pgLocation").value = "";
+        document.getElementById("pgRent").value = "";
+        document.getElementById("pgCategory").value = "";
+        document.getElementById("pgFacilities").value = "";
+        document.getElementById("pgImage").value = "";
+    });
+    document.getElementById("pgListContainer")
+    .addEventListener("click", async function(event) {
+
+        if (event.target.classList.contains("delete-pg-btn")) {
+
+            const pgId = event.target.dataset.id;
+
+            const confirmDelete = confirm(
+                "Are you sure you want to delete this PG?"
+            );
+
+            if (!confirmDelete) {
+                return;
+            }
+
+            const { error } = await supabaseClient
+                .from("pg_listings")
+                .delete()
+                .eq("id", pgId);
+
+            if (error) {
+                console.log("Delete Error:", error);
+                alert("Unable to delete PG.");
+                return;
+            }
+
+            alert("PG deleted successfully!");
+
+            loadPGListings();
+        }
+    });
+    document.getElementById("pgListContainer")
+    .addEventListener("click", async function(event) {
+
+        if (event.target.classList.contains("edit-pg-btn")) {
+
+            const pgId = event.target.dataset.id;
+
+            const { data: pg, error } = await supabaseClient
+                .from("pg_listings")
+                .select("*")
+                .eq("id", pgId)
+                .single();
+
+            if (error) {
+                alert("Unable to load PG details.");
+                return;
+            }
+
+            const name = prompt("Enter PG Name:", pg.name);
+            if (name === null) return;
+
+            const location = prompt("Enter Location:", pg.location);
+            if (location === null) return;
+
+            const rent = prompt("Enter Monthly Rent:", pg.rent);
+            if (rent === null) return;
+
+            const category = prompt("Enter Category:", pg.category);
+            if (category === null) return;
+
+            const facilities = prompt(
+                "Enter Facilities separated by commas:",
+                pg.facilities.join(", ")
+            );
+            if (facilities === null) return;
+
+            const { error: updateError } = await supabaseClient
+                .from("pg_listings")
+                .update({
+                    name: name.trim(),
+                    location: location.trim(),
+                    rent: Number(rent),
+                    category: category.trim(),
+                    facilities: facilities.split(",").map(item => item.trim())
+                })
+                .eq("id", pgId);
+
+            if (updateError) {
+                console.log("Update Error:", updateError);
+                alert("Unable to update PG.");
+                return;
+            }
+
+            alert("PG updated successfully!");
+            loadPGListings();
+        }
+    });
+    async function loadPGListings() {
+
+    const { data, error } = await supabaseClient
+        .from("pg_listings")
+        .select("*")
+        .order("id");
+
+    const container = document.getElementById("pgListContainer");
+
+    if (error) {
+        console.log("PG Loading Error:", error);
+        container.textContent = "Unable to load PG listings.";
+        return;
+    }
+
+    container.innerHTML = "";
+
+    data.forEach(function(pg) {
+        const card = document.createElement("div");
+        card.className = "pg-card";
+
+        card.innerHTML = `
+            <div class="pg-info">
+                <h3>${pg.name}</h3>
+                <p>Location: ${pg.location}</p>
+                <p>Rent: ₹${pg.rent}</p>
+                <p>PG ID: ${pg.id}</p>
+                <button class="edit-pg-btn" data-id="${pg.id}">Edit</button>
+                <button class="delete-pg-btn" data-id="${pg.id}">Delete</button>
+            </div>
+        `;
+
+        container.appendChild(card);
+    });
+}
+        async function loadRequests() {
+            const { data: userData, error: userError } =
+                await supabaseClient.auth.getUser();
+
+            if (userError || !userData.user ||
+                userData.user.id !== ADMIN_UID) {
+                window.location.href = "admin.html";
+                return;
+            }
+
+            const { data, error } = await supabaseClient
+                .from("visit_requests")
+                .select("id, pg_id, visitor_name, visitor_phone, visit_date, created_at, pg_listings(name)")
+                .order("created_at", { ascending: false });
+
+            const container =
+                document.getElementById("requestsContainer");
+
+            if (error) {
+                console.log("Request Loading Error:", error);
+                container.textContent =
+                    "Unable to load requests. Please check permissions.";
+                return;
+            }
+
+            document.getElementById("requestCount").textContent =
+                "Total Requests: " + data.length;
+
+            if (data.length === 0) {
+                container.textContent = "No visit requests yet.";
+                return;
+            }
+
+            data.forEach(function(request) {
+                const card = document.createElement("div");
+                card.className = "pg-card";
+
+                card.innerHTML = `
+                    <div class="pg-info">
+                        <h3>${request.visitor_name}</h3>
+                        <p>Phone: ${request.visitor_phone}</p>
+                       <p>PG Name: ${request.pg_listings?.name || "Unknown PG"}</p>
+                        <p>Visit Date: ${request.visit_date}</p>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        document.getElementById("logoutBtn")
+            .addEventListener("click", async function() {
+                await supabaseClient.auth.signOut();
+                window.location.href = "admin.html";
+            });
+        loadPGListings();
+        loadRequests();
+    </script>
+
+</body>
+</html>

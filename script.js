@@ -1,3 +1,14 @@
+// SUPABASE CONNECTION
+
+const SUPABASE_URL = "https://oiczndyhuzcsrpzoaunk.supabase.co ";
+const SUPABASE_KEY = "sb_publishable_zwImJd2xLY8y4E-m59JLGw_s4nEctEi";
+
+const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
+
+console.log("Supabase connected!");
 const locationInput = document.getElementById("location");
 const searchButton = document.getElementById("searchBtn");
 
@@ -14,66 +25,102 @@ searchButton.addEventListener("click", function() {
 
 });
 // =========================
-// FAVORITES
-// =========================
-// =========================
-// FAVORITES WITH LOCALSTORAGE
-// =========================
+ // FAVORITES WITH LOCALSTORAGE
+ // =========================
 
-const favoriteButtons = document.querySelectorAll(".favorite-btn");
+document.getElementById("pgContainer").addEventListener("click", function(event) {
 
-favoriteButtons.forEach(function(button, index) {
+    if (event.target.classList.contains("favorite-btn")) {
 
-    const savedFavorite = localStorage.getItem("favorite-" + index);
+        const button = event.target;
+        const card = button.closest(".pg-card");
+        const pgId = card.dataset.pgId;
 
-    if (savedFavorite === "true") {
-        button.textContent = "♥";
-    }
+        const savedFavorite = localStorage.getItem("favorite-" + pgId);
 
-    button.addEventListener("click", function() {
+        if (savedFavorite === "true") {
 
-        if (button.textContent.trim() === "♡") {
-
-            button.textContent = "♥";
-
-            localStorage.setItem("favorite-" + index, "true");
+            button.textContent = "♡";
+            localStorage.setItem("favorite-" + pgId, "false");
 
         } else {
 
-            button.textContent = "♡";
-
-            localStorage.setItem("favorite-" + index, "false");
+            button.textContent = "♥";
+            localStorage.setItem("favorite-" + pgId, "true");
 
         }
-
-    });
-
+    }
 });
 
-// =========================
-// PG DATA FOR SEARCH
-// =========================
+// PG DATA FROM SUPABASE
+let pgData = [];
 
-const pgData = [
-    {
-        name: "Sunrise PG",
-        location: "Ghaziabad",
-        rent: 7000,
-        category: "college"
-    },
-    {
-        name: "Student Home PG",
-        location: "Noida",
-        rent: 6500,
-        category:"metro"
-    },
-    {
-        name: "Green View PG",
-        location: "Delhi",
-        rent: 8000,
-        category:"market"
+function renderPGCards() {
+    const pgContainer = document.getElementById("pgContainer");
+
+    pgContainer.innerHTML = "";
+
+    pgData.forEach(function(pg, index) {
+        const card = document.createElement("div");
+        card.className = "pg-card";
+
+        card.innerHTML = `
+            <div class="pg-image"
+                 style="background-image: url('${pg.image_url}');
+                        background-size: cover;
+                        background-position: center;">
+                <button class="favorite-btn">♡</button>
+            </div>
+
+            <div class="pg-info">
+                <div class="pg-title">
+                    <h3>${pg.name}</h3>
+                </div>
+
+                <p class="location-text">📍 ${pg.location}</p>
+
+                <div class="facilities">
+                    ${pg.facilities.map(function(item) {
+                        return `<span>${item}</span>`;
+                    }).join("")}
+                </div>
+
+                <div class="pg-bottom">
+                    <p><strong>₹${pg.rent.toLocaleString("en-IN")}</strong>
+                    <small>/ month</small></p>
+
+                    <button class="details-btn">View Details</button>
+                </div>
+            </div>
+        `;
+         const savedFavorite = localStorage.getItem("favorite-" + pg.id);
+
+            if (savedFavorite === "true") {
+                card.querySelector(".favorite-btn").textContent = "♥";
+            }
+        card.dataset.pgId = pg.id;
+        pgContainer.appendChild(card);
+    });
+}
+
+async function loadPGData() {
+    const { data, error } = await supabaseClient
+        .from("pg_listings")
+        .select("*")
+        .order("id");
+
+    if (error) {
+        console.log("PG Loading Error:", error);
+        return;
     }
-];
+
+    pgData = data;
+    renderPGCards();
+
+    console.log("PG Data Loaded:", pgData);
+}
+
+loadPGData();
 // =========================
 // PG CARDS
 // =========================
@@ -82,92 +129,96 @@ const pgCards = document.querySelectorAll(".pg-card");
 
 
 // =========================
-// SEARCH INPUT
-// =========================
+ // SEARCH INPUT
+ // =========================
 
 const searchLocation = document.getElementById("location");
 
-console.log(searchLocation.value);
 searchButton.addEventListener("click", function() {
 
-    const location = searchLocation.value.trim();
+    const location = searchLocation.value.trim().toLowerCase();
+
     if (location === "") {
-    alert("Please enter a location.");
-    return;
-}
-const results = pgData.filter(function(pg) {
-
-    return pg.name.toLowerCase().includes(location.toLowerCase()) ||
-       pg.location.toLowerCase().includes(location.toLowerCase());
-});
-pgCards.forEach(function(card, index) {
-
-    const pg = pgData[index];
-
-    const match =
-        pg.name.toLowerCase().includes(location.toLowerCase()) ||
-        pg.location.toLowerCase().includes(location.toLowerCase());
-
-    if (match) {
-        card.style.display = "block";
-    } else {
-        card.style.display = "none";
+        alert("Please enter a location.");
+        return;
     }
 
-});
-if (results.length > 0) {
+    const cards = document.querySelectorAll(".pg-card");
+    let found = 0;
 
-    document.querySelector(".pg-section").scrollIntoView({
-        behavior: "smooth"
+    cards.forEach(function(card) {
+
+        const pg = pgData.find(function(item) {
+            return String(item.id) === card.dataset.pgId;
+        });
+
+        const match = pg &&
+            (pg.name.toLowerCase().includes(location) ||
+             pg.location.toLowerCase().includes(location));
+
+        card.style.display = match ? "block" : "none";
+
+        if (match) found++;
     });
 
-}
-if (results.length === 0) {
-    alert("No PG found. Try another search.");
-}
+    document.getElementById("noResults").style.display =
+        found === 0 ? "block" : "none";
+
+    if (found > 0) {
+        document.querySelector(".pg-section").scrollIntoView({
+            behavior: "smooth"
+        });
+    } else {
+        alert("No PG found. Try another search.");
+    }
 });
+
+
 // =========================
 // POPULAR LOCATION FILTER
 // =========================
 
 function filterLocation(type) {
-    const noResults = document.getElementById("noResults");
 
-    pgCards.forEach(function(card, index) {
+    const cards = document.querySelectorAll(".pg-card");
+    let found = 0;
 
-        const pg = pgData[index];
+    cards.forEach(function(card) {
 
-        if (pg.category === type) {
-            card.style.display = "block";
-        } else {
-            card.style.display = "none";
+        const pg = pgData.find(function(item) {
+            return String(item.id) === card.dataset.pgId;
+        });
+
+        const match = pg && pg.category === type;
+
+        card.style.display = match ? "block" : "none";
+
+        if (match) found++;
+    });
+
+    document.getElementById("noResults").style.display =
+        found === 0 ? "block" : "none";
+}
+
+
+// =========================
+// VIEW DETAILS
+// =========================
+
+document.getElementById("pgContainer").addEventListener("click", function(event) {
+
+    if (event.target.classList.contains("details-btn")) {
+
+        const card = event.target.closest(".pg-card");
+
+        const pgIndex = pgData.findIndex(function(pg) {
+            return String(pg.id) === card.dataset.pgId;
+        });
+
+        if (pgIndex !== -1) {
+            window.location.href = "pg-details.html?pg=" + pgIndex;
         }
-        if (type === "bus") {
-    noResults.style.display = "block";
-} else {
-    noResults.style.display = "none";
-}
-
-    });
-
-}
-// =========================
-// VIEW DETAILS
-// =========================
-// =========================
-// VIEW DETAILS
-// =========================
-
-const detailButtons = document.querySelectorAll(".details-btn");
-
-detailButtons.forEach(function(button, index) {
-
-    button.addEventListener("click", function() {
-
-        window.location.href = "pg-details.html?pg="+ index;
-
-    });
-
+    }
 });
 // =========================
 // CLOSE PG DETAILS

@@ -61,59 +61,56 @@
         <a href="index.html">← Back to PGs</a>
 
     </div>
-
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
 
-        const pgData = [
-            {
-                name: "Sunrise PG",
-                location: "Ghaziabad",
-                rent: 7000,
-                facilities: "Wi-Fi • Food • Laundry",
-                image: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267"
-            },
-            {
-                name: "Student Home PG",
-                location: "Noida",
-                rent: 6500,
-                facilities: "Wi-Fi • Food • Security",
-                image: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85"
+        const SUPABASE_URL = "https://oiczndyhuzcsrpzoaunk.supabase.co";
+const SUPABASE_KEY = "sb_publishable_zwImJd2xLY8y4E-m59JLGw_s4nEctEi ";
 
-                
-            },
-            {
-                name: "Green View PG",
-                location: "Delhi",
-                rent: 8000,
-                facilities: "Wi-Fi • Laundry • Security",
-                image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2"
-            }
-        ];
+const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
 
+let pg = null;
 
-        const params = new URLSearchParams(window.location.search);
+async function loadPGDetails() {
 
-        const index = Number(params.get("pg"));
+    const params = new URLSearchParams(window.location.search);
+    const index = Number(params.get("pg"));
 
-        const pg = pgData[index];
+    const { data, error } = await supabaseClient
+        .from("pg_listings")
+        .select("*")
+        .order("id");
 
+    if (error) {
+        console.log("PG Details Error:", error);
+        alert("Unable to load PG details.");
+        return;
+    }
 
-        if (pg) {
+    pg = data[index];
 
-            document.getElementById("detailName").textContent = pg.name;
+    if (!pg) {
+        alert("PG not found.");
+        return;
+    }
 
-            document.getElementById("detailLocation").textContent =
-                "📍 " + pg.location;
+    document.getElementById("detailName").textContent = pg.name;
+    document.getElementById("detailLocation").textContent = "📍 " + pg.location;
 
-            document.getElementById("detailRent").textContent =
-                "₹" + pg.rent + " / month";
+    document.getElementById("detailRent").textContent =
+        "₹" + pg.rent.toLocaleString("en-IN") + " / month";
 
-            document.getElementById("detailFacilities").textContent =
-                pg.facilities;
-                document.getElementById("detailImage").src = pg.image;
+    document.getElementById("detailFacilities").textContent =
+        pg.facilities.join(" • ");
 
-        }
+    document.getElementById("detailImage").src = pg.image_url;
+}
+
+loadPGDetails();
        const requestVisitBtn = document.getElementById("requestVisitBtn");
 
 requestVisitBtn.addEventListener("click", function() {
@@ -142,7 +139,7 @@ closeOwnerPopup.addEventListener("click", function() {
 });
 const submitVisit = document.getElementById("submitVisit");
 
-submitVisit.addEventListener("click", function() {
+submitVisit.addEventListener("click", async function() {
 
     const name = document.getElementById("visitorName").value.trim();
     const phone = document.getElementById("visitorPhone").value.trim();
@@ -153,9 +150,46 @@ submitVisit.addEventListener("click", function() {
         return;
     }
 
-    alert("Visit request submitted successfully!");
+    if (!/^[6-9]\d{9}$/.test(phone)) {
+        alert("Please enter a valid 10-digit mobile number.");
+        return;
+    }
+
+    if (!pg) {
+        alert("PG details are still loading. Please try again.");
+        return;
+    }
+
+    const selectedDate = new Date(date + "T00:00:00");
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (selectedDate < today) {
+        alert("Please select today or a future date.");
+        return;
+    }
+
+    const { data, error } = await supabaseClient
+        .from("visit_requests")
+        .insert([
+            {
+                pg_id: pg.id,
+                visitor_name: name,
+                visitor_phone: phone,
+                visit_date: date
+            }
+        ]);
+
+    if (error) {
+        console.log("Visit Request Error:", error);
+        alert("Request failed. Please try again.");
+        return;
+    }
+
+    alert("Visit request saved successfully!");
 
 });
+    
     </script>
 
 </body>
