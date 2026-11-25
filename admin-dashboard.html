@@ -228,7 +228,7 @@
     }
 
     container.innerHTML = "";
-
+    document.getElementById("totalPGs").textContent = data.length;
     data.forEach(function(pg) {
         const card = document.createElement("div");
         card.className = "pg-card";
@@ -274,7 +274,7 @@
 
             document.getElementById("requestCount").textContent =
                 "Total Requests: " + data.length;
-
+            document.getElementById("totalRequests").textContent = data.length;
             if (data.length === 0) {
                 container.textContent = "No visit requests yet.";
                 return;

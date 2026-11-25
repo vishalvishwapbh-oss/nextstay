@@ -1,6 +1,6 @@
 // SUPABASE CONNECTION
 
-const SUPABASE_URL = "https://oiczndyhuzcsrpzoaunk.supabase.co ";
+const SUPABASE_URL = "https://oiczndyhuzcsrpzoaunk.supabase.co";
 const SUPABASE_KEY = "sb_publishable_zwImJd2xLY8y4E-m59JLGw_s4nEctEi";
 
 const supabaseClient = window.supabase.createClient(
@@ -25,8 +25,8 @@ searchButton.addEventListener("click", function() {
 
 });
 // =========================
- // FAVORITES WITH LOCALSTORAGE
- // =========================
+// FAVORITES WITH LOCALSTORAGE
+// =========================
 
 document.getElementById("pgContainer").addEventListener("click", function(event) {
 
@@ -40,15 +40,16 @@ document.getElementById("pgContainer").addEventListener("click", function(event)
 
         if (savedFavorite === "true") {
 
-            button.textContent = "♡";
             localStorage.setItem("favorite-" + pgId, "false");
 
         } else {
 
-            button.textContent = "♥";
             localStorage.setItem("favorite-" + pgId, "true");
 
         }
+
+        renderPGCards();
+        renderFavorites();
     }
 });
 
@@ -102,7 +103,105 @@ function renderPGCards() {
         pgContainer.appendChild(card);
     });
 }
+// =========================
+// DISPLAY FAVORITE PGs
+// =========================
 
+function renderFavorites() {
+
+    const favoritesContainer = document.getElementById("favoritesContainer");
+    const noFavorites = document.getElementById("noFavorites");
+
+    favoritesContainer.innerHTML = "";
+
+    const favoritePGs = pgData.filter(function(pg) {
+        return localStorage.getItem("favorite-" + pg.id) === "true";
+    });
+
+    if (favoritePGs.length === 0) {
+        noFavorites.style.display = "block";
+        return;
+    }
+
+    noFavorites.style.display = "none";
+
+    favoritePGs.forEach(function(pg, index) {
+
+        const card = document.createElement("div");
+        card.className = "pg-card";
+        card.dataset.pgId = pg.id;
+
+        card.innerHTML = `
+            <div class="pg-image"
+                 style="background-image: url('${pg.image_url}');
+                        background-size: cover;
+                        background-position: center;">
+
+                <button class="favorite-btn">♥</button>
+
+            </div>
+
+            <div class="pg-info">
+
+                <h3>${pg.name}</h3>
+
+                <p class="location-text">📍 ${pg.location}</p>
+
+                <div class="facilities">
+                    ${pg.facilities.map(function(item) {
+                        return `<span>${item}</span>`;
+                    }).join("")}
+                </div>
+
+                <div class="pg-bottom">
+
+                    <p>
+                        <strong>₹${pg.rent.toLocaleString("en-IN")}</strong>
+                        <small>/ month</small>
+                    </p>
+
+                    <button class="details-btn">View Details</button>
+
+                </div>
+
+            </div>
+        `;
+
+        favoritesContainer.appendChild(card);
+    });
+}
+
+
+// Remove favorite from Favorites section
+
+document.getElementById("favoritesContainer").addEventListener("click", function(event) {
+
+    const card = event.target.closest(".pg-card");
+
+    if (!card) return;
+
+    const pgId = card.dataset.pgId;
+
+    if (event.target.classList.contains("favorite-btn")) {
+
+        localStorage.setItem("favorite-" + pgId, "false");
+
+        renderPGCards();
+        renderFavorites();
+    }
+
+    if (event.target.classList.contains("details-btn")) {
+
+        const pgIndex = pgData.findIndex(function(pg) {
+            return String(pg.id) === pgId;
+        });
+
+        if (pgIndex !== -1) {
+            window.location.href = "pg-details.html?pg=" + pgIndex;
+        }
+    }
+
+});
 async function loadPGData() {
     const { data, error } = await supabaseClient
         .from("pg_listings")
@@ -116,6 +215,7 @@ async function loadPGData() {
 
     pgData = data;
     renderPGCards();
+    renderFavorites();
 
     console.log("PG Data Loaded:", pgData);
 }
