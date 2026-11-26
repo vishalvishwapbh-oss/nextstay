@@ -1,310 +1,577 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NextStay Admin Dashboard</title>
+    <title>NextStay - Admin Dashboard</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-    <div class="admin-dashboard">
-        <h1>NextStay Admin Dashboard</h1>
+    <header class="navbar">
+        <a href="index.html" class="logo">
+            🏠 NextStay <span class="logo-badge" style="background: #fee2e2; color: #dc2626;">Admin Dashboard</span>
+        </a>
+        <nav>
+            <a href="index.html" target="_blank">🌐 View Website</a>
+            <a href="#" id="adminLogoutBtn" class="nav-logout-btn">🚪 Logout</a>
+        </nav>
+    </header>
 
-        <a href="index.html">
-        <button type="button">View Website</button>
-</a>
+    <main class="admin-dashboard-wrapper">
+        <!-- Top Header & Actions -->
+        <div class="admin-header-bar">
+            <div>
+                <h1>Admin Control Panel</h1>
+                <p style="color: #64748b; font-size: 14px;">Manage student accommodations, update pricing, and review visit inquiries.</p>
+            </div>
+            <div class="admin-action-btns">
+                <button type="button" id="switchToAddTabBtn" class="btn-primary" style="margin: 0; padding: 10px 18px; font-size: 14px; width: auto;">
+                    + Add New PG
+                </button>
+                <button type="button" onclick="window.print()" class="btn-secondary" style="margin: 0; padding: 10px 16px; font-size: 13px; width: auto;">
+                    🖨️ Print Summary
+                </button>
+            </div>
+        </div>
 
-<button id="logoutBtn">Logout</button>
-<div class="admin-stats">
+        <!-- Metric Statistics Cards -->
+        <div class="admin-stats-grid">
+            <div class="stat-metric-card">
+                <div class="stat-icon">🏠</div>
+                <div class="stat-info">
+                    <p>Total PG Listings</p>
+                    <h3 id="statTotalPGs">0</h3>
+                </div>
+            </div>
 
-    <div class="stat-card">
-        <h3>Total PGs</h3>
-        <p id="totalPGs">0</p>
+            <div class="stat-metric-card">
+                <div class="stat-icon" style="background: #ecfdf5; color: #10b981;">📅</div>
+                <div class="stat-info">
+                    <p>Total Visit Requests</p>
+                    <h3 id="statTotalRequests">0</h3>
+                </div>
+            </div>
+
+            <div class="stat-metric-card">
+                <div class="stat-icon" style="background: #fef3c7; color: #d97706;">⏳</div>
+                <div class="stat-info">
+                    <p>Pending Inquiries</p>
+                    <h3 id="statPendingRequests">0</h3>
+                </div>
+            </div>
+
+            <div class="stat-metric-card">
+                <div class="stat-icon" style="background: #f5f3ff; color: #7c3aed;">💰</div>
+                <div class="stat-info">
+                    <p>Average Rent / Mo</p>
+                    <h3 id="statAvgRent">₹0</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="admin-tabs">
+            <button class="admin-tab-btn active" data-tab="tab-listings">📋 PG Listings</button>
+            <button class="admin-tab-btn" data-tab="tab-requests">📩 Visit Requests (<span id="tabRequestCount">0</span>)</button>
+            <button class="admin-tab-btn" data-tab="tab-add">➕ Add New Accommodation</button>
+        </div>
+
+        <!-- TAB 1: PG LISTINGS TABLE -->
+        <section id="tab-listings" class="tab-pane">
+            <div class="admin-table-card">
+                <table class="styled-table" id="pgListingsTable">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>PG Name</th>
+                            <th>Location</th>
+                            <th>Category</th>
+                            <th>Gender</th>
+                            <th>Monthly Rent</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pgTableBody">
+                        <!-- Rendered dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- TAB 2: VISIT REQUESTS TABLE -->
+        <section id="tab-requests" class="tab-pane" style="display: none;">
+            <div class="admin-table-card">
+                <table class="styled-table" id="visitRequestsTable">
+                    <thead>
+                        <tr>
+                            <th>Visitor Name</th>
+                            <th>Phone</th>
+                            <th>PG Requested</th>
+                            <th>Visit Date & Slot</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="requestsTableBody">
+                        <!-- Rendered dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- TAB 3: ADD NEW PG FORM -->
+        <section id="tab-add" class="tab-pane" style="display: none;">
+            <div style="background: white; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 30px; max-width: 800px; box-shadow: var(--shadow-sm);">
+                <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 20px; color: var(--text-main);">Add New PG Accommodation</h2>
+
+                <form id="addPGForm" onsubmit="return false;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px;">
+                        <div class="form-group">
+                            <label for="newPgName">PG / Hostel Name *</label>
+                            <input type="text" id="newPgName" class="form-input" placeholder="e.g. Oxford Deluxe Student Stay" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="newPgLocation">Location / Area *</label>
+                            <input type="text" id="newPgLocation" class="form-input" placeholder="e.g. South Campus, Delhi" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="newPgRent">Monthly Rent (₹) *</label>
+                            <input type="number" id="newPgRent" class="form-input" placeholder="e.g. 8500" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="newPgCategory">Nearby Highlight *</label>
+                            <select id="newPgCategory" class="form-select">
+                                <option value="college">🎓 Near College / University</option>
+                                <option value="metro">🚇 Near Metro Station</option>
+                                <option value="market">🛍️ Near Market / Shopping</option>
+                                <option value="bus">🚌 Near Bus Terminal</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="newPgGender">Target Occupancy *</label>
+                            <select id="newPgGender" class="form-select">
+                                <option value="Boys">👦 Boys Only</option>
+                                <option value="Girls">👧 Girls Only</option>
+                                <option value="Unisex">👫 Unisex / Co-Living</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="newPgSharing">Room Sharing</label>
+                            <input type="text" id="newPgSharing" class="form-input" placeholder="e.g. Single / Double Sharing" value="Single / Double Sharing">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="newOwnerName">Owner / Host Name</label>
+                            <input type="text" id="newOwnerName" class="form-input" placeholder="Host full name" value="Vikas Sharma">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="newOwnerPhone">Owner Phone</label>
+                            <input type="tel" id="newOwnerPhone" class="form-input" placeholder="+91 98765 43210" value="+91 98765 43210">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="newPgFacilities">Facilities (Comma Separated)</label>
+                        <input type="text" id="newPgFacilities" class="form-input" placeholder="Wi-Fi, Food Included, AC, Laundry, Power Backup" value="Wi-Fi, 3 Meals Included, AC, Daily Cleaning, Security">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="newPgImage">Image URL</label>
+                        <input type="url" id="newPgImage" class="form-input" placeholder="https://images.unsplash.com/..." value="https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&w=800&q=80">
+                        <div style="margin-top: 8px; font-size: 12px; color: #64748b; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                            <span>Quick presets:</span>
+                            <button type="button" class="table-btn table-btn-edit" onclick="document.getElementById('newPgImage').value='https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&w=800&q=80'">Room 1</button>
+                            <button type="button" class="table-btn table-btn-edit" onclick="document.getElementById('newPgImage').value='https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=800&q=80'">Room 2</button>
+                            <button type="button" class="table-btn table-btn-edit" onclick="document.getElementById('newPgImage').value='https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&w=800&q=80'">Room 3</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="newPgDesc">Short Description</label>
+                        <textarea id="newPgDesc" class="form-textarea" rows="3" placeholder="Briefly highlight rules, meals, nearby colleges..."></textarea>
+                    </div>
+
+                    <button type="submit" id="addPgSubmitBtn" class="btn-primary" style="max-width: 240px;">
+                        ✓ Publish PG Listing
+                    </button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <!-- ================= EDIT PG MODAL ================= -->
+    <div id="editPGModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 600px;">
+            <button id="closeEditModal" class="modal-close" aria-label="Close">✕</button>
+
+            <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 6px;">Edit PG Accommodation</h2>
+            <p style="font-size: 13px; color: #64748b; margin-bottom: 20px;">Update accommodation information and monthly rental rates.</p>
+
+            <form id="editPGForm" onsubmit="return false;">
+                <input type="hidden" id="editPgId">
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                    <div class="form-group">
+                        <label for="editPgName">PG Name</label>
+                        <input type="text" id="editPgName" class="form-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editPgLocation">Location</label>
+                        <input type="text" id="editPgLocation" class="form-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editPgRent">Monthly Rent (₹)</label>
+                        <input type="number" id="editPgRent" class="form-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editPgCategory">Category</label>
+                        <select id="editPgCategory" class="form-select">
+                            <option value="college">Near College</option>
+                            <option value="metro">Near Metro</option>
+                            <option value="market">Near Market</option>
+                            <option value="bus">Near Bus Stand</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editPgGender">Gender</label>
+                        <select id="editPgGender" class="form-select">
+                            <option value="Boys">Boys</option>
+                            <option value="Girls">Girls</option>
+                            <option value="Unisex">Unisex</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editPgSharing">Room Type</label>
+                        <input type="text" id="editPgSharing" class="form-input">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="editPgFacilities">Facilities (comma-separated)</label>
+                    <input type="text" id="editPgFacilities" class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label for="editPgImage">Image URL</label>
+                    <input type="url" id="editPgImage" class="form-input">
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" id="saveEditBtn" class="btn-primary">
+                        Save Changes
+                    </button>
+                    <button type="button" class="btn-secondary" onclick="document.getElementById('editPGModal').style.display='none'">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 
-    <div class="stat-card">
-        <h3>Total Requests</h3>
-        <p id="totalRequests">0</p>
-    </div>
-
-</div>
-         <h2>Add New PG</h2>
-
-<div class="pg-info">
-    <input type="text" id="pgName" placeholder="PG Name">
-    <br><br>
-
-    <input type="text" id="pgLocation" placeholder="Location">
-    <br><br>
-
-    <input type="number" id="pgRent" placeholder="Monthly Rent">
-    <br><br>
-
-    <input type="text" id="pgCategory" placeholder="Category">
-    <br><br>
-
-    <input type="text" id="pgFacilities" placeholder="Facilities (Wi-Fi, Food, AC)">
-    <br><br>
-
-    <input type="text" id="pgImage" placeholder="Image URL">
-    <br><br>
-
-    <button id="addPGBtn">Add PG</button>
-    <p id="pgMessage"></p>
-</div>
-
-<hr>
-    <hr>
-
-<h2>Manage PG Listings</h2>
-
-<div id="pgListContainer">
-    <p>Loading PG listings...</p>
-</div>
-        <h2>Visit Requests</h2>
-        <p id="requestCount">Loading requests...</p>
-
-        <div id="requestsContainer"></div>
-    </div>
-
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="data-store.js"></script>
 
     <script>
-        const SUPABASE_URL = "https://oiczndyhuzcsrpzoaunk.supabase.co";
-        const SUPABASE_KEY = "sb_publishable_zwImJd2xLY8y4E-m59JLGw_s4nEctEi";
-        const ADMIN_UID = "d22e485f-9f3a-4d9d-bcbb-5a7cdca42708";
+        let dashboardPGs = [];
+        let dashboardVisits = [];
 
-        const supabaseClient = window.supabase.createClient(
-            SUPABASE_URL,
-            SUPABASE_KEY
-        );
-         document.getElementById("addPGBtn")
-    .addEventListener("click", async function() {
+        document.addEventListener("DOMContentLoaded", async function() {
+            // Check Admin Auth
+            const user = DataStore.getCurrentUser();
+            if (!user || user.role !== "admin") {
+                showToast("Admin session not found. Please log in.", "error");
+                setTimeout(() => window.location.href = "admin.html", 1000);
+                return;
+            }
 
-        const name = document.getElementById("pgName").value.trim();
-        const location = document.getElementById("pgLocation").value.trim();
-        const rent = Number(document.getElementById("pgRent").value);
-        const category = document.getElementById("pgCategory").value.trim();
-        const facilitiesText = document.getElementById("pgFacilities").value.trim();
-        const image = document.getElementById("pgImage").value.trim();
+            setupTabNavigation();
+            setupLogout();
+            await refreshDashboardData();
+            setupAddForm();
+            setupEditModal();
+        });
 
-        const message = document.getElementById("pgMessage");
+        // Tab Navigation
+        function setupTabNavigation() {
+            const tabs = document.querySelectorAll(".admin-tab-btn");
+            const panes = document.querySelectorAll(".tab-pane");
 
-        if (!name || !location || !rent || !category || !facilitiesText || !image) {
-            message.textContent = "Please fill all fields.";
-            return;
+            tabs.forEach(tab => {
+                tab.addEventListener("click", () => {
+                    tabs.forEach(t => t.classList.remove("active"));
+                    panes.forEach(p => p.style.display = "none");
+
+                    tab.classList.add("active");
+                    const targetPane = document.getElementById(tab.dataset.tab);
+                    if (targetPane) targetPane.style.display = "block";
+                });
+            });
+
+            document.getElementById("switchToAddTabBtn").addEventListener("click", () => {
+                const addTab = document.querySelector(".admin-tab-btn[data-tab='tab-add']");
+                if (addTab) addTab.click();
+            });
         }
 
-        const facilities = facilitiesText.split(",").map(item => item.trim());
-
-        const { error } = await supabaseClient
-            .from("pg_listings")
-            .insert([{
-                name: name,
-                location: location,
-                rent: rent,
-                category: category,
-                facilities: facilities,
-                image_url: image
-            }]);
-
-        if (error) {
-            console.log("Add PG Error:", error);
-            message.textContent = "PG could not be added.";
-            return;
+        // Logout
+        function setupLogout() {
+            document.getElementById("adminLogoutBtn").addEventListener("click", (e) => {
+                e.preventDefault();
+                DataStore.logout();
+                showToast("Logged out from Admin Dashboard.", "info");
+                setTimeout(() => window.location.href = "admin.html", 600);
+            });
         }
 
-        message.textContent = "PG added successfully!";
+        // Refresh Data
+        async function refreshDashboardData() {
+            dashboardPGs = await DataStore.getAllPGs();
+            dashboardVisits = await DataStore.getVisitRequests();
 
-        document.getElementById("pgName").value = "";
-        document.getElementById("pgLocation").value = "";
-        document.getElementById("pgRent").value = "";
-        document.getElementById("pgCategory").value = "";
-        document.getElementById("pgFacilities").value = "";
-        document.getElementById("pgImage").value = "";
-    });
-    document.getElementById("pgListContainer")
-    .addEventListener("click", async function(event) {
-
-        if (event.target.classList.contains("delete-pg-btn")) {
-
-            const pgId = event.target.dataset.id;
-
-            const confirmDelete = confirm(
-                "Are you sure you want to delete this PG?"
-            );
-
-            if (!confirmDelete) {
-                return;
-            }
-
-            const { error } = await supabaseClient
-                .from("pg_listings")
-                .delete()
-                .eq("id", pgId);
-
-            if (error) {
-                console.log("Delete Error:", error);
-                alert("Unable to delete PG.");
-                return;
-            }
-
-            alert("PG deleted successfully!");
-
-            loadPGListings();
+            renderMetrics();
+            renderPGTable();
+            renderRequestsTable();
         }
-    });
-    document.getElementById("pgListContainer")
-    .addEventListener("click", async function(event) {
 
-        if (event.target.classList.contains("edit-pg-btn")) {
+        // Metrics
+        function renderMetrics() {
+            document.getElementById("statTotalPGs").textContent = dashboardPGs.length;
+            document.getElementById("statTotalRequests").textContent = dashboardVisits.length;
+            document.getElementById("tabRequestCount").textContent = dashboardVisits.length;
 
-            const pgId = event.target.dataset.id;
+            const pending = dashboardVisits.filter(v => (v.status || "").toLowerCase() === "pending").length;
+            document.getElementById("statPendingRequests").textContent = pending;
 
-            const { data: pg, error } = await supabaseClient
-                .from("pg_listings")
-                .select("*")
-                .eq("id", pgId)
-                .single();
-
-            if (error) {
-                alert("Unable to load PG details.");
-                return;
+            if (dashboardPGs.length > 0) {
+                const totalRent = dashboardPGs.reduce((acc, curr) => acc + (Number(curr.rent) || 0), 0);
+                const avg = Math.round(totalRent / dashboardPGs.length);
+                document.getElementById("statAvgRent").textContent = `₹${avg.toLocaleString("en-IN")}`;
             }
-
-            const name = prompt("Enter PG Name:", pg.name);
-            if (name === null) return;
-
-            const location = prompt("Enter Location:", pg.location);
-            if (location === null) return;
-
-            const rent = prompt("Enter Monthly Rent:", pg.rent);
-            if (rent === null) return;
-
-            const category = prompt("Enter Category:", pg.category);
-            if (category === null) return;
-
-            const facilities = prompt(
-                "Enter Facilities separated by commas:",
-                pg.facilities.join(", ")
-            );
-            if (facilities === null) return;
-
-            const { error: updateError } = await supabaseClient
-                .from("pg_listings")
-                .update({
-                    name: name.trim(),
-                    location: location.trim(),
-                    rent: Number(rent),
-                    category: category.trim(),
-                    facilities: facilities.split(",").map(item => item.trim())
-                })
-                .eq("id", pgId);
-
-            if (updateError) {
-                console.log("Update Error:", updateError);
-                alert("Unable to update PG.");
-                return;
-            }
-
-            alert("PG updated successfully!");
-            loadPGListings();
         }
-    });
-    async function loadPGListings() {
 
-    const { data, error } = await supabaseClient
-        .from("pg_listings")
-        .select("*")
-        .order("id");
+        // Render PG Listings Table
+        function renderPGTable() {
+            const tbody = document.getElementById("pgTableBody");
+            tbody.innerHTML = "";
 
-    const container = document.getElementById("pgListContainer");
-
-    if (error) {
-        console.log("PG Loading Error:", error);
-        container.textContent = "Unable to load PG listings.";
-        return;
-    }
-
-    container.innerHTML = "";
-
-    data.forEach(function(pg) {
-        const card = document.createElement("div");
-        card.className = "pg-card";
-
-        card.innerHTML = `
-            <div class="pg-info">
-                <h3>${pg.name}</h3>
-                <p>Location: ${pg.location}</p>
-                <p>Rent: ₹${pg.rent}</p>
-                <p>PG ID: ${pg.id}</p>
-                <button class="edit-pg-btn" data-id="${pg.id}">Edit</button>
-                <button class="delete-pg-btn" data-id="${pg.id}">Delete</button>
-            </div>
-        `;
-
-        container.appendChild(card);
-    });
-}
-        async function loadRequests() {
-            const { data: userData, error: userError } =
-                await supabaseClient.auth.getUser();
-
-            if (userError || !userData.user ||
-                userData.user.id !== ADMIN_UID) {
-                window.location.href = "admin.html";
+            if (dashboardPGs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #64748b; padding: 30px;">No PGs found. Add one above!</td></tr>`;
                 return;
             }
 
-            const { data, error } = await supabaseClient
-                .from("visit_requests")
-                .select("id, pg_id, visitor_name, visitor_phone, visit_date, created_at, pg_listings(name)")
-                .order("created_at", { ascending: false });
-
-            const container =
-                document.getElementById("requestsContainer");
-
-            if (error) {
-                console.log("Request Loading Error:", error);
-                container.textContent =
-                    "Unable to load requests. Please check permissions.";
-                return;
-            }
-
-            document.getElementById("requestCount").textContent =
-                "Total Requests: " + data.length;
-
-            if (data.length === 0) {
-                container.textContent = "No visit requests yet.";
-                return;
-            }
-
-            data.forEach(function(request) {
-                const card = document.createElement("div");
-                card.className = "pg-card";
-
-                card.innerHTML = `
-                    <div class="pg-info">
-                        <h3>${request.visitor_name}</h3>
-                        <p>Phone: ${request.visitor_phone}</p>
-                       <p>PG Name: ${request.pg_listings?.name || "Unknown PG"}</p>
-                        <p>Visit Date: ${request.visit_date}</p>
-                    </div>
+            dashboardPGs.forEach(pg => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td>
+                        <img src="${pg.image_url || 'https://via.placeholder.com/60'}" alt="" style="width: 52px; height: 42px; border-radius: 6px; object-fit: cover;">
+                    </td>
+                    <td>
+                        <strong>${pg.name}</strong>
+                    </td>
+                    <td>${pg.location}</td>
+                    <td><span class="status-badge status-completed">${pg.category}</span></td>
+                    <td>${pg.gender || 'Unisex'}</td>
+                    <td><strong>₹${Number(pg.rent).toLocaleString("en-IN")}</strong></td>
+                    <td>
+                        <button class="table-btn table-btn-edit edit-btn" data-id="${pg.id}">Edit</button>
+                        <button class="table-btn table-btn-delete delete-btn" data-id="${pg.id}">Delete</button>
+                    </td>
                 `;
+                tbody.appendChild(tr);
+            });
 
-                container.appendChild(card);
+            // Attach Edit & Delete Listeners
+            tbody.querySelectorAll(".edit-btn").forEach(btn => {
+                btn.addEventListener("click", () => openEditModal(btn.dataset.id));
+            });
+
+            tbody.querySelectorAll(".delete-btn").forEach(btn => {
+                btn.addEventListener("click", async () => {
+                    if (confirm("Are you sure you want to permanently delete this PG listing?")) {
+                        await DataStore.deletePG(btn.dataset.id);
+                        showToast("PG listing deleted successfully.", "success");
+                        await refreshDashboardData();
+                    }
+                });
             });
         }
 
-        document.getElementById("logoutBtn")
-            .addEventListener("click", async function() {
-                await supabaseClient.auth.signOut();
-                window.location.href = "admin.html";
+        // Render Visit Requests Table
+        function renderRequestsTable() {
+            const tbody = document.getElementById("requestsTableBody");
+            tbody.innerHTML = "";
+
+            if (dashboardVisits.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #64748b; padding: 30px;">No visit inquiries yet.</td></tr>`;
+                return;
+            }
+
+            dashboardVisits.forEach(v => {
+                const tr = document.createElement("tr");
+                const isPending = (v.status || "Pending").toLowerCase() === "pending";
+                const statusClass = isPending ? "status-pending" : "status-approved";
+
+                tr.innerHTML = `
+                    <td><strong>${v.visitor_name}</strong></td>
+                    <td>${v.visitor_phone}</td>
+                    <td>${v.pg_name || "NextStay Accommodation"}</td>
+                    <td>${v.visit_date} <br><small style="color: #64748b;">${v.time_slot || ''}</small></td>
+                    <td><span class="status-badge ${statusClass}">${v.status || 'Pending'}</span></td>
+                    <td>
+                        ${isPending ? `<button class="table-btn table-btn-approve approve-req-btn" data-id="${v.id}">✓ Approve</button>` : ''}
+                        <a href="tel:${v.visitor_phone}" class="table-btn table-btn-edit" style="text-decoration: none;">📞 Call</a>
+                        <button class="table-btn table-btn-delete del-req-btn" data-id="${v.id}">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
             });
-        loadPGListings();
-        loadRequests();
+
+            tbody.querySelectorAll(".approve-req-btn").forEach(btn => {
+                btn.addEventListener("click", async () => {
+                    await DataStore.updateVisitStatus(btn.dataset.id, "Approved");
+                    showToast("Visit request approved!", "success");
+                    await refreshDashboardData();
+                });
+            });
+
+            tbody.querySelectorAll(".del-req-btn").forEach(btn => {
+                btn.addEventListener("click", async () => {
+                    if (confirm("Delete this visit inquiry?")) {
+                        await DataStore.deleteVisitRequest(btn.dataset.id);
+                        showToast("Inquiry deleted.", "info");
+                        await refreshDashboardData();
+                    }
+                });
+            });
+        }
+
+        // Setup Add Form
+        function setupAddForm() {
+            document.getElementById("addPGForm").addEventListener("submit", async (e) => {
+                e.preventDefault();
+
+                const name = document.getElementById("newPgName").value.trim();
+                const location = document.getElementById("newPgLocation").value.trim();
+                const rent = Number(document.getElementById("newPgRent").value);
+                const category = document.getElementById("newPgCategory").value;
+                const gender = document.getElementById("newPgGender").value;
+                const sharing = document.getElementById("newPgSharing").value.trim();
+                const owner_name = document.getElementById("newOwnerName").value.trim();
+                const owner_phone = document.getElementById("newOwnerPhone").value.trim();
+                const facilitiesText = document.getElementById("newPgFacilities").value.trim();
+                const image_url = document.getElementById("newPgImage").value.trim();
+                const description = document.getElementById("newPgDesc").value.trim();
+
+                const facilities = facilitiesText.split(",").map(f => f.trim()).filter(Boolean);
+
+                const submitBtn = document.getElementById("addPgSubmitBtn");
+                submitBtn.disabled = true;
+                submitBtn.textContent = "Publishing...";
+
+                try {
+                    await DataStore.addPG({
+                        name,
+                        location,
+                        rent,
+                        category,
+                        gender,
+                        sharing,
+                        owner_name,
+                        owner_phone,
+                        facilities,
+                        image_url,
+                        description
+                    });
+
+                    showToast("🎉 New PG published successfully!", "success");
+                    document.getElementById("addPGForm").reset();
+
+                    // Switch back to listings
+                    document.querySelector(".admin-tab-btn[data-tab='tab-listings']").click();
+                    await refreshDashboardData();
+                } catch (err) {
+                    console.error("Add PG error:", err);
+                    showToast("Error adding PG.", "error");
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = "✓ Publish PG Listing";
+                }
+            });
+        }
+
+        // Setup Edit Modal
+        function setupEditModal() {
+            const editModal = document.getElementById("editPGModal");
+            document.getElementById("closeEditModal").addEventListener("click", () => {
+                editModal.style.display = "none";
+            });
+
+            document.getElementById("editPGForm").addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const id = document.getElementById("editPgId").value;
+                const name = document.getElementById("editPgName").value.trim();
+                const location = document.getElementById("editPgLocation").value.trim();
+                const rent = Number(document.getElementById("editPgRent").value);
+                const category = document.getElementById("editPgCategory").value;
+                const gender = document.getElementById("editPgGender").value;
+                const sharing = document.getElementById("editPgSharing").value.trim();
+                const image_url = document.getElementById("editPgImage").value.trim();
+                const facilitiesText = document.getElementById("editPgFacilities").value.trim();
+                const facilities = facilitiesText.split(",").map(f => f.trim()).filter(Boolean);
+
+                const saveBtn = document.getElementById("saveEditBtn");
+                saveBtn.disabled = true;
+                saveBtn.textContent = "Saving...";
+
+                try {
+                    await DataStore.updatePG(id, {
+                        name, location, rent, category, gender, sharing, image_url, facilities
+                    });
+                    editModal.style.display = "none";
+                    showToast("PG details updated successfully!", "success");
+                    await refreshDashboardData();
+                } catch (err) {
+                    showToast("Failed to update PG.", "error");
+                } finally {
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = "Save Changes";
+                }
+            });
+        }
+
+        function openEditModal(pgId) {
+            const pg = dashboardPGs.find(p => String(p.id) === String(pgId));
+            if (!pg) return;
+
+            document.getElementById("editPgId").value = pg.id;
+            document.getElementById("editPgName").value = pg.name || "";
+            document.getElementById("editPgLocation").value = pg.location || "";
+            document.getElementById("editPgRent").value = pg.rent || "";
+            document.getElementById("editPgCategory").value = pg.category || "college";
+            document.getElementById("editPgGender").value = pg.gender || "Boys";
+            document.getElementById("editPgSharing").value = pg.sharing || "";
+            document.getElementById("editPgImage").value = pg.image_url || "";
+            document.getElementById("editPgFacilities").value = Array.isArray(pg.facilities) ? pg.facilities.join(", ") : (pg.facilities || "");
+
+            document.getElementById("editPGModal").style.display = "flex";
+        }
     </script>
 
 </body>
+
 </html>

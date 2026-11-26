@@ -4,42 +4,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>NextStay - Find Your Perfect PG</title>
-
+    <title>NextStay - Find Your Perfect Student PG</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
     <!-- ================= NAVBAR ================= -->
-
     <header class="navbar">
-
-        <div class="logo">
-            🏠 <span>NextStay</span>
-        </div>
+        <a href="index.html" class="logo">
+            🏠 NextStay <span class="logo-badge">Student Living</span>
+        </a>
 
         <nav>
-            <a href="#">Home</a>
+            <a href="index.html">Home</a>
             <a href="#find-pg">Find PG</a>
-            <a href="#favorites">Favorites</a>
-            <a href="#login">Login</a>
-            <a href="admin.html">Admin Login</a>
+            <a href="#favorites">Favorites <span class="nav-fav-badge" id="navFavCount">0</span></a>
+            <a href="login.html" id="navLoginLink">Login</a>
+            <a href="admin.html" class="nav-btn">Admin Portal</a>
         </nav>
-
     </header>
 
 
     <!-- ================= HERO SECTION ================= -->
-
     <main>
-
         <section class="hero">
-
             <div class="hero-content">
-
-                <p class="hero-tag">🏠 Student Accommodation Made Easy</p>
+                <div class="hero-tag">✨ Verified Student Accommodation Made Easy</div>
 
                 <h1>
                     Find a PG that<br>
@@ -47,161 +38,174 @@
                 </h1>
 
                 <p class="hero-description">
-                    Discover comfortable, affordable and student-friendly
-                    PGs near your college.
+                    Discover comfortable, fully-furnished, affordable and student-friendly PGs near top colleges, metro stations and markets.
                 </p>
 
-
                 <!-- Search -->
-
                 <div class="search-box">
-
                     <div class="search-input">
-
                         <span>📍</span>
-
                         <input
                             type="text"
-                            id="location"
-                            placeholder="Enter city, area or college"
+                            id="locationInput"
+                            placeholder="Search by city, area, college, or PG name..."
+                            autocomplete="off"
                         >
-
                     </div>
 
-                    <button id="searchBtn">
+                    <button id="searchBtn" type="button">
                         🔍 Search PG
                     </button>
-
                 </div>
-
             </div>
-
         </section>
 
 
-        <!-- ================= POPULAR LOCATIONS ================= -->
-
+        <!-- ================= POPULAR LOCATIONS & ADVANCED FILTERS ================= -->
         <section class="locations" id="find-pg">
-
             <div class="section-heading">
-
                 <div>
-                    <p class="small-title">EXPLORE</p>
-                    <h2>Popular Locations</h2>
+                    <p class="small-title">DISCOVER</p>
+                    <h2>Browse & Filter Stays</h2>
                 </div>
-
-                <a href="#">View all →</a>
-
+                <button id="resetAllFilters" class="reset-filters-btn">↺ Reset All Filters</button>
             </div>
 
+            <!-- Filter Card -->
+            <div class="filter-wrapper">
+                <div class="filter-row">
+                    <div class="location-list" id="categoryFilterGroup">
+                        <span class="filter-label">Locations:</span>
+                        <button class="filter-btn active" data-category="all">✨ All</button>
+                        <button class="filter-btn" data-category="college">🎓 Near College</button>
+                        <button class="filter-btn" data-category="metro">🚇 Near Metro</button>
+                        <button class="filter-btn" data-category="market">🛍️ Near Market</button>
+                        <button class="filter-btn" data-category="bus">🚌 Near Bus Stand</button>
+                    </div>
 
-            <div class="location-list">
+                    <div class="filter-controls">
+                        <!-- Gender Filter -->
+                        <select id="genderFilter" class="filter-select">
+                            <option value="all">👥 All Genders</option>
+                            <option value="Boys">👦 Boys Only</option>
+                            <option value="Girls">👧 Girls Only</option>
+                            <option value="Unisex">👫 Unisex / Co-living</option>
+                        </select>
 
-               <div class="location-list">
+                        <!-- Budget Filter -->
+                        <select id="budgetFilter" class="filter-select">
+                            <option value="all">💰 Any Budget</option>
+                            <option value="6000">Under ₹6,000</option>
+                            <option value="9000">Under ₹9,000</option>
+                            <option value="12000">Under ₹12,000</option>
+                        </select>
 
-    <button onclick="filterLocation('college')">📍 Near College</button>
-    <button onclick="filterLocation('metro')">🚇 Near Metro</button>
-    <button onclick="filterLocation('market')">🛍️ Near Market</button>
-    <button onclick="filterLocation('bus')">🚌 Near Bus Stand</button>
-
-</div>
+                        <!-- Sort By -->
+                        <select id="sortFilter" class="filter-select">
+                            <option value="featured">⚡ Featured</option>
+                            <option value="price-asc">Price: Low to High</option>
+                            <option value="price-desc">Price: High to Low</option>
+                            <option value="rating">Top Rated ⭐</option>
+                        </select>
+                    </div>
+                </div>
             </div>
-
         </section>
 
 
         <!-- ================= FEATURED PGs ================= -->
-
         <section class="pg-section">
-
             <div class="section-heading">
-
                 <div>
-                    <p class="small-title">TOP PICKS</p>
-                    <h2>Featured PGs</h2>
+                    <p class="small-title">VERIFIED LISTINGS</p>
+                    <h2 id="listingsHeader">Available PGs (<span id="resultsCount">0</span>)</h2>
                 </div>
-
-                <a href="#">View all →</a>
-
             </div>
 
-               <div class="pg-container" id="pgContainer">
+            <div class="pg-container" id="pgContainer">
+                <!-- Dynamically Rendered PG Cards -->
+            </div>
+
+            <div id="noResults" style="display: none;">
+                <div class="empty-state-icon">🔍</div>
+                <h3>No PG matched your criteria</h3>
+                <p>Try searching for a different area, college, or clearing your filters.</p>
+                <br>
+                <button class="reset-filters-btn" onclick="resetFilters()">Clear Filters</button>
+            </div>
+        </section>
+
+
+        <!-- ================= FAVORITES SECTION ================= -->
+        <section class="pg-section" id="favorites">
+            <div class="section-heading">
+                <div>
+                    <p class="small-title">SAVED FOR LATER</p>
+                    <h2>My Favorites ❤️</h2>
                 </div>
+            </div>
 
-            
-            <p id="noResults" style="display: none;">No PG found for this location.</p>
+            <div class="pg-container" id="favoritesContainer">
+                <!-- Dynamically Rendered Favorites -->
+            </div>
 
+            <div id="noFavorites">
+                <div class="empty-state-icon">🤍</div>
+                <h3>No favorites saved yet</h3>
+                <p>Click on the heart icon on any PG card to save it here for quick access!</p>
+            </div>
         </section>
 
 
         <!-- ================= WHY NEXTSTAY ================= -->
-
         <section class="why-nextstay">
-
-            <p class="small-title">WHY NEXTSTAY?</p>
-
-            <h2>Everything you need to find your stay.</h2>
+            <p class="small-title">WHY CHOOSE US</p>
+            <h2>Everything you need for student peace of mind.</h2>
 
             <div class="features">
-
                 <div class="feature">
-                    <div>✓</div>
-                    <h3>Verified PGs</h3>
-                    <p>Find reliable accommodation options.</p>
+                    <div class="feature-icon-wrapper">✓</div>
+                    <h3>100% Verified PGs</h3>
+                    <p>Every accommodation is physically inspected for security, hygiene, and authentic facilities.</p>
                 </div>
 
                 <div class="feature">
-                    <div>🔍</div>
-                    <h3>Easy Search</h3>
-                    <p>Search PGs by location and budget.</p>
+                    <div class="feature-icon-wrapper">⚡</div>
+                    <h3>Instant Visit Scheduling</h3>
+                    <p>Schedule in-person visits with PG owners at your preferred date and time slot.</p>
                 </div>
 
                 <div class="feature">
-                    <div>💰</div>
-                    <h3>Student Friendly</h3>
-                    <p>Affordable options for students.</p>
+                    <div class="feature-icon-wrapper">💰</div>
+                    <h3>Student Friendly Rents</h3>
+                    <p>Zero brokerage, transparent pricing, and budget-conscious accommodation for learners.</p>
                 </div>
-
             </div>
-
         </section>
-
     </main>
 
-    <!--===========PG DETAILS=========-->>
-<section id="pgDetails" class="pg-details" style="display: none;">
-
-    <button id="closeDetails">✕ Close</button>
-
-    <h2 id="detailName"></h2>
-
-    <p id="detailLocation"></p>
-
-    <p id="detailRent"></p>
-
-    <h3>Facilities</h3>
-
-    <p id="detailFacilities"></p>
-
-</section>
 
     <!-- ================= FOOTER ================= -->
-
     <footer>
-
-        <h3>🏠 NextStay</h3>
-
-        <p>
-            Find a comfortable place to stay near your college.
-        </p>
-
-        <p class="copyright">
-            © 2026 NextStay | College Mini Project
-        </p>
-
+        <div class="footer-content">
+            <h3>🏠 NextStay</h3>
+            <p>India's trusted student PG & hostel discovery portal.</p>
+            <div class="footer-links">
+                <a href="index.html">Home</a>
+                <a href="#find-pg">Browse PGs</a>
+                <a href="#favorites">Favorites</a>
+                <a href="user-login.html">User Portal</a>
+                <a href="admin.html">Admin Login</a>
+            </div>
+            <p class="copyright">
+                © 2026 NextStay | College Mini Project | Built with HTML, CSS, JavaScript & Supabase
+            </p>
+        </div>
     </footer>
 
+    <!-- Supabase CDN & Central Data Store -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="data-store.js"></script>
     <script src="script.js"></script>
 
 </body>

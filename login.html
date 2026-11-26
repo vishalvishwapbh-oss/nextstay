@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NextStay - Choose Portal</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header class="navbar">
+        <a href="index.html" class="logo">
+            🏠 NextStay <span class="logo-badge">Portal</span>
+        </a>
+        <nav>
+            <a href="index.html">← Back to Website</a>
+        </nav>
+    </header>
+
+    <div class="auth-page-container">
+        <div class="auth-card" style="max-width: 680px;">
+            <h1>🏠 NextStay Portals</h1>
+            <h2>Welcome to Student Accommodation Portal</h2>
+            <p class="auth-subtitle">Select your account type to proceed.</p>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-bottom: 25px;">
+                <!-- User Card -->
+                <div style="background: #f8fafc; border: 1.5px solid var(--border-color); border-radius: 16px; padding: 25px; text-align: center; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--border-color)'">
+                    <div style="font-size: 40px; margin-bottom: 10px;">👤</div>
+                    <h3 style="font-size: 19px; margin-bottom: 8px;">Student / User</h3>
+                    <p style="font-size: 13px; color: #64748b; margin-bottom: 20px;">
+                        Explore verified PGs, save favorites, and schedule property visits.
+                    </p>
+                    <a href="user-login.html" class="btn-primary" style="display: block; text-decoration: none;">
+                        User Login / Sign Up →
+                    </a>
+                </div>
+
+                <!-- Admin Card -->
+                <div style="background: #f8fafc; border: 1.5px solid var(--border-color); border-radius: 16px; padding: 25px; text-align: center; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--border-color)'">
+                    <div style="font-size: 40px; margin-bottom: 10px;">🛡️</div>
+                    <h3 style="font-size: 19px; margin-bottom: 8px;">PG Admin / Host</h3>
+                    <p style="font-size: 13px; color: #64748b; margin-bottom: 20px;">
+                        Manage accommodation listings, pricing, and approve visit requests.
+                    </p>
+                    <a href="admin.html" class="btn-secondary" style="display: block; text-decoration: none; background: white; border-color: var(--primary); color: var(--primary);">
+                        Admin Login Portal →
+                    </a>
+                </div>
+            </div>
+
+            <a href="index.html" class="back-link">← Return to Homepage</a>
+        </div>
+    </div>
+
+</body>
+</html>

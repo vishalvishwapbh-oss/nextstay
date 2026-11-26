@@ -4,192 +4,381 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>PG Details - NextStay</title>
-
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <div class="pg-details-page">
-        <img id="detailImage" src="" alt="PG Room">
+    <!-- ================= NAVBAR ================= -->
+    <header class="navbar">
+        <a href="index.html" class="logo">
+            🏠 NextStay <span class="logo-badge">Student Living</span>
+        </a>
 
-        <h1 id="detailName">PG Name</h1>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="index.html#find-pg">Find PG</a>
+            <a href="index.html#favorites">Favorites</a>
+            <a href="login.html" id="navLoginLink">Login</a>
+            <a href="admin.html" class="nav-btn">Admin Portal</a>
+        </nav>
+    </header>
 
-        <p id="detailLocation">📍 Location</p>
 
-        <p id="detailRent">₹0 / month</p>
+    <!-- ================= MAIN CONTENT ================= -->
+    <main class="details-page-wrapper">
+        <a href="index.html" class="back-link">← Back to all PGs</a>
 
-        <h2>Facilities</h2>
+        <div class="details-card" id="detailsCard">
+            <!-- Hero Image Banner -->
+            <div class="details-hero-img-container" id="detailImageBanner">
+                <div class="details-img-badges">
+                    <span class="badge" id="detailGenderBadge">👦 Boys PG</span>
+                    <span class="badge badge-category" id="detailCategoryBadge">🎓 Near College</span>
+                    <span class="rating-pill" id="detailRatingBadge">⭐ 4.8 (24 Reviews)</span>
+                </div>
+            </div>
 
-        <p id="detailFacilities">Wi-Fi • Food • Laundry</p>
+            <!-- Details Body -->
+            <div class="details-body">
+                <div class="details-header">
+                    <div class="details-header-info">
+                        <h1 id="detailName">Loading PG Details...</h1>
+                        <p class="location-text" id="detailLocation">📍 Fetching location...</p>
+                    </div>
 
-        <button id="requestVisitBtn">Request Visit</button>
-        <div id="visitForm" class="visit-form">
+                    <div class="details-rent-box">
+                        <strong id="detailRent">₹0</strong>
+                        <span>/ month</span>
+                        <div style="font-size: 12px; color: #64748b; margin-top: 4px;">Zero Brokerage</div>
+                    </div>
+                </div>
 
-    <h2>Request a Visit</h2>
+                <div class="details-grid">
+                    <!-- Left: Details, Specs & Amenities -->
+                    <div class="details-main-info">
+                        <h3 class="detail-section-title">About this Accommodation</h3>
+                        <p class="details-description" id="detailDescription">
+                            Loading property description...
+                        </p>
 
-    <input type="text" id="visitorName" placeholder="Your Name">
+                        <h3 class="detail-section-title">Property Highlights & Rules</h3>
+                        <div class="spec-grid">
+                            <div class="spec-box">
+                                <span>Room Occupancy</span>
+                                <strong id="specSharing">Single / Twin Sharing</strong>
+                            </div>
+                            <div class="spec-box">
+                                <span>Security Deposit</span>
+                                <strong id="specDeposit">₹10,000 (Refundable)</strong>
+                            </div>
+                            <div class="spec-box">
+                                <span>Notice Period</span>
+                                <strong>1 Month</strong>
+                            </div>
+                            <div class="spec-box">
+                                <span>Gate Curfew</span>
+                                <strong>10:30 PM (Flexible with pass)</strong>
+                            </div>
+                        </div>
 
-    <input type="tel" id="visitorPhone" placeholder="Phone Number">
+                        <h3 class="detail-section-title">Amenities & Facilities Included</h3>
+                        <div class="amenities-list" id="amenitiesList">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
 
-    <input type="date" id="visitDate">
+                    <!-- Right: Action Sidebar -->
+                    <div class="details-sidebar">
+                        <div class="action-card">
+                            <h3>Interested in this stay?</h3>
+                            <p style="color: #64748b; font-size: 13px; margin-bottom: 18px;">
+                                Schedule an in-person visit with the owner or connect directly.
+                            </p>
 
-    <button id="submitVisit">Submit Request</button>
+                            <button id="openVisitModalBtn" class="btn-primary-block">
+                                📅 Request a Visit
+                            </button>
 
-</div>
-        <button id="contactOwnerBtn">Contact Owner</button>
-        <div id="ownerPopup" class="owner-popup">
+                            <button id="openContactModalBtn" class="btn-secondary-block">
+                                📞 Contact Owner
+                            </button>
 
-    <div class="owner-popup-box">
+                            <div class="owner-card-info">
+                                <h4>Verified Property Host</h4>
+                                <p class="owner-name" id="sidebarOwnerName">Ramesh Sharma</p>
+                                <p class="owner-phone" id="sidebarOwnerPhone">+91 98112 34567</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
 
-        <button id="closeOwnerPopup" class="close-popup">×</button>
 
-        <h2>Contact Owner</h2>
+    <!-- ================= VISIT REQUEST MODAL ================= -->
+    <div id="visitModal" class="modal-overlay">
+        <div class="modal-content">
+            <button id="closeVisitModal" class="modal-close" aria-label="Close">✕</button>
 
-        <p>📞 +91 98765 43210</p>
-        
-    <a href="tel:+919876543210" class="call-owner">Call Owner</a>
+            <h2 style="font-size: 22px; margin-bottom: 6px; font-weight: 800;">Schedule a PG Visit</h2>
+            <p style="font-size: 13px; color: #64748b; margin-bottom: 20px;">
+                Choose a convenient date & time to inspect the room and facilities.
+            </p>
 
+            <form id="visitForm" onsubmit="return false;">
+                <div class="form-group">
+                    <label for="visitorName">Your Full Name</label>
+                    <input type="text" id="visitorName" class="form-input" placeholder="e.g. Rahul Verma" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="visitorPhone">10-Digit Mobile Number</label>
+                    <input type="tel" id="visitorPhone" class="form-input" placeholder="e.g. 9876543210" maxlength="10" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="visitDate">Preferred Visit Date</label>
+                    <input type="date" id="visitDate" class="form-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="visitSlot">Preferred Time Slot</label>
+                    <select id="visitSlot" class="form-select">
+                        <option value="Morning (10:00 AM - 01:00 PM)">Morning (10:00 AM - 01:00 PM)</option>
+                        <option value="Afternoon (01:00 PM - 05:00 PM)">Afternoon (01:00 PM - 05:00 PM)</option>
+                        <option value="Evening (05:00 PM - 08:00 PM)">Evening (05:00 PM - 08:00 PM)</option>
+                    </select>
+                </div>
+
+                <button type="submit" id="submitVisitBtn" class="btn-primary">
+                    ✓ Confirm Visit Request
+                </button>
+            </form>
+        </div>
     </div>
 
-</div>
 
-        <br><br>
+    <!-- ================= CONTACT OWNER MODAL ================= -->
+    <div id="contactModal" class="modal-overlay">
+        <div class="modal-content" style="text-align: center;">
+            <button id="closeContactModal" class="modal-close" aria-label="Close">✕</button>
 
-        <a href="index.html">← Back to PGs</a>
+            <div style="font-size: 40px; margin-bottom: 10px;">📞</div>
+            <h2 style="font-size: 22px; margin-bottom: 6px; font-weight: 800;">Contact PG Owner</h2>
+            <p style="font-size: 13px; color: #64748b; margin-bottom: 20px;">
+                Direct communication with the verified accommodation host.
+            </p>
 
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                <h3 id="modalOwnerName" style="font-size: 18px; color: #1e293b; margin-bottom: 4px;">Host Name</h3>
+                <p id="modalOwnerPhone" style="font-size: 20px; font-weight: 800; color: #4f46e5;">+91 98765 43210</p>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <a id="callOwnerLink" href="tel:" class="btn-primary" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+                    📞 Direct Call
+                </a>
+                <a id="whatsappOwnerLink" href="https://wa.me/" target="_blank" class="btn-secondary" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: #22c55e; color: white; border-color: #22c55e;">
+                    💬 WhatsApp
+                </a>
+            </div>
+        </div>
     </div>
+
+
+    <!-- ================= FOOTER ================= -->
+    <footer>
+        <div class="footer-content">
+            <h3>🏠 NextStay</h3>
+            <p>India's trusted student PG & hostel discovery portal.</p>
+            <p class="copyright">
+                © 2026 NextStay | College Mini Project
+            </p>
+        </div>
+    </footer>
+
+    <!-- Supabase CDN & Central Data Store -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="data-store.js"></script>
 
     <script>
+        let currentPG = null;
 
-        const SUPABASE_URL = "https://oiczndyhuzcsrpzoaunk.supabase.co";
-const SUPABASE_KEY = "sb_publishable_zwImJd2xLY8y4E-m59JLGw_s4nEctEi ";
+        document.addEventListener("DOMContentLoaded", async function() {
+            // Set min date for visit booking to today
+            const today = new Date().toISOString().split("T")[0];
+            document.getElementById("visitDate").min = today;
+            document.getElementById("visitDate").value = today;
 
-const supabaseClient = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-);
+            await loadDetails();
+            setupModalHandlers();
+        });
 
-let pg = null;
+        async function loadDetails() {
+            const params = new URLSearchParams(window.location.search);
+            const idParam = params.get("id");
+            const pgIndexParam = params.get("pg");
 
-async function loadPGDetails() {
+            const all = await DataStore.getAllPGs();
 
-    const params = new URLSearchParams(window.location.search);
-    const index = Number(params.get("pg"));
-
-    const { data, error } = await supabaseClient
-        .from("pg_listings")
-        .select("*")
-        .order("id");
-
-    if (error) {
-        console.log("PG Details Error:", error);
-        alert("Unable to load PG details.");
-        return;
-    }
-
-    pg = data[index];
-
-    if (!pg) {
-        alert("PG not found.");
-        return;
-    }
-
-    document.getElementById("detailName").textContent = pg.name;
-    document.getElementById("detailLocation").textContent = "📍 " + pg.location;
-
-    document.getElementById("detailRent").textContent =
-        "₹" + pg.rent.toLocaleString("en-IN") + " / month";
-
-    document.getElementById("detailFacilities").textContent =
-        pg.facilities.join(" • ");
-
-    document.getElementById("detailImage").src = pg.image_url;
-}
-
-loadPGDetails();
-       const requestVisitBtn = document.getElementById("requestVisitBtn");
-
-requestVisitBtn.addEventListener("click", function() {
-
-    document.getElementById("visitForm").style.display = "block";
-
-});
-const contactOwnerBtn = document.getElementById("contactOwnerBtn");
-
-const ownerPopup = document.getElementById("ownerPopup");
-
-const closeOwnerPopup = document.getElementById("closeOwnerPopup");
-
-
-contactOwnerBtn.addEventListener("click", function() {
-
-    ownerPopup.style.display = "flex";
-
-});
-
-
-closeOwnerPopup.addEventListener("click", function() {
-
-    ownerPopup.style.display = "none";
-
-});
-const submitVisit = document.getElementById("submitVisit");
-
-submitVisit.addEventListener("click", async function() {
-
-    const name = document.getElementById("visitorName").value.trim();
-    const phone = document.getElementById("visitorPhone").value.trim();
-    const date = document.getElementById("visitDate").value;
-
-    if (name === "" || phone === "" || date === "") {
-        alert("Please fill all details.");
-        return;
-    }
-
-    if (!/^[6-9]\d{9}$/.test(phone)) {
-        alert("Please enter a valid 10-digit mobile number.");
-        return;
-    }
-
-    if (!pg) {
-        alert("PG details are still loading. Please try again.");
-        return;
-    }
-
-    const selectedDate = new Date(date + "T00:00:00");
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    if (selectedDate < today) {
-        alert("Please select today or a future date.");
-        return;
-    }
-
-    const { data, error } = await supabaseClient
-        .from("visit_requests")
-        .insert([
-            {
-                pg_id: pg.id,
-                visitor_name: name,
-                visitor_phone: phone,
-                visit_date: date
+            if (idParam) {
+                currentPG = all.find(p => String(p.id) === String(idParam));
+            } else if (pgIndexParam !== null) {
+                const idx = Number(pgIndexParam);
+                currentPG = all[idx];
             }
-        ]);
 
-    if (error) {
-        console.log("Visit Request Error:", error);
-        alert("Request failed. Please try again.");
-        return;
-    }
+            if (!currentPG && all.length > 0) {
+                currentPG = all[0]; // fallback
+            }
 
-    alert("Visit request saved successfully!");
+            if (!currentPG) {
+                alert("PG not found! Redirecting to home.");
+                window.location.href = "index.html";
+                return;
+            }
 
-});
-    
+            // Populate Page
+            document.title = `${currentPG.name} - NextStay`;
+            document.getElementById("detailName").textContent = currentPG.name;
+            document.getElementById("detailLocation").textContent = "📍 " + currentPG.location;
+            document.getElementById("detailRent").textContent = "₹" + Number(currentPG.rent).toLocaleString("en-IN");
+            document.getElementById("detailDescription").textContent = currentPG.description || 
+                "Comfortable and fully-maintained student accommodation located in a peaceful and secure neighborhood with high-speed internet, regular housekeeping, and wholesome meals.";
+
+            if (currentPG.image_url) {
+                document.getElementById("detailImageBanner").style.backgroundImage = `url('${currentPG.image_url}')`;
+            }
+
+            // Badges
+            const genderBadge = document.getElementById("detailGenderBadge");
+            genderBadge.textContent = currentPG.gender ? `${currentPG.gender === 'Boys' ? '👦' : currentPG.gender === 'Girls' ? '👧' : '👫'} ${currentPG.gender} PG` : "👥 Student PG";
+            genderBadge.className = `badge ${currentPG.gender === 'Boys' ? 'badge-gender-boys' : currentPG.gender === 'Girls' ? 'badge-gender-girls' : 'badge-gender-unisex'}`;
+
+            document.getElementById("detailCategoryBadge").textContent = 
+                currentPG.category === 'college' ? '🎓 Near College' :
+                currentPG.category === 'metro' ? '🚇 Near Metro' :
+                currentPG.category === 'market' ? '🛍️ Near Market' :
+                currentPG.category === 'bus' ? '🚌 Near Bus Stand' : '📍 Prime Location';
+
+            document.getElementById("detailRatingBadge").textContent = `⭐ ${currentPG.rating || 4.7} (${currentPG.reviews_count || 24} Reviews)`;
+
+            if (currentPG.sharing) {
+                document.getElementById("specSharing").textContent = currentPG.sharing;
+            }
+            if (currentPG.deposit) {
+                document.getElementById("specDeposit").textContent = currentPG.deposit;
+            }
+
+            // Facilities
+            const amenitiesList = document.getElementById("amenitiesList");
+            amenitiesList.innerHTML = "";
+            const facilities = currentPG.facilities || ["High-speed Wi-Fi", "Food Included", "AC", "Laundry", "24/7 Security", "Power Backup"];
+            
+            facilities.forEach(item => {
+                const chip = document.createElement("span");
+                chip.className = "amenity-chip";
+                chip.innerHTML = `✓ ${item}`;
+                amenitiesList.appendChild(chip);
+            });
+
+            // Owner Details
+            const ownerName = currentPG.owner_name || "Verified Host";
+            const ownerPhone = currentPG.owner_phone || "+91 98765 43210";
+
+            document.getElementById("sidebarOwnerName").textContent = ownerName;
+            document.getElementById("sidebarOwnerPhone").textContent = ownerPhone;
+            document.getElementById("modalOwnerName").textContent = ownerName;
+            document.getElementById("modalOwnerPhone").textContent = ownerPhone;
+
+            const cleanPhone = ownerPhone.replace(/[^0-9]/g, "");
+            document.getElementById("callOwnerLink").href = `tel:${ownerPhone}`;
+            document.getElementById("whatsappOwnerLink").href = `https://wa.me/${cleanPhone}?text=Hi%20${encodeURIComponent(ownerName)},%20I%20am%20interested%20in%20your%20PG%20${encodeURIComponent(currentPG.name)}%20on%20NextStay.`;
+        }
+
+        function setupModalHandlers() {
+            const visitModal = document.getElementById("visitModal");
+            const contactModal = document.getElementById("contactModal");
+
+            // Open Visit Modal
+            document.getElementById("openVisitModalBtn").addEventListener("click", () => {
+                const user = DataStore.getCurrentUser();
+                if (user) {
+                    if (user.name) document.getElementById("visitorName").value = user.name;
+                    if (user.phone) document.getElementById("visitorPhone").value = user.phone;
+                }
+                visitModal.style.display = "flex";
+            });
+
+            // Close Visit Modal
+            document.getElementById("closeVisitModal").addEventListener("click", () => {
+                visitModal.style.display = "none";
+            });
+
+            // Open Contact Modal
+            document.getElementById("openContactModalBtn").addEventListener("click", () => {
+                contactModal.style.display = "flex";
+            });
+
+            // Close Contact Modal
+            document.getElementById("closeContactModal").addEventListener("click", () => {
+                contactModal.style.display = "none";
+            });
+
+            // Close on overlay backdrop click
+            window.addEventListener("click", (e) => {
+                if (e.target === visitModal) visitModal.style.display = "none";
+                if (e.target === contactModal) contactModal.style.display = "none";
+            });
+
+            // Submit Visit Request
+            document.getElementById("visitForm").addEventListener("submit", async (e) => {
+                e.preventDefault();
+
+                const name = document.getElementById("visitorName").value.trim();
+                const phone = document.getElementById("visitorPhone").value.trim();
+                const date = document.getElementById("visitDate").value;
+                const slot = document.getElementById("visitSlot").value;
+
+                if (!name || !phone || !date) {
+                    showToast("Please fill all details.", "error");
+                    return;
+                }
+
+                if (!/^[6-9]\d{9}$/.test(phone)) {
+                    showToast("Please enter a valid 10-digit mobile number.", "error");
+                    return;
+                }
+
+                const submitBtn = document.getElementById("submitVisitBtn");
+                submitBtn.disabled = true;
+                submitBtn.textContent = "Submitting...";
+
+                try {
+                    await DataStore.addVisitRequest({
+                        pg_id: currentPG ? currentPG.id : 1,
+                        pg_name: currentPG ? currentPG.name : "NextStay PG",
+                        visitor_name: name,
+                        visitor_phone: phone,
+                        visit_date: date,
+                        time_slot: slot
+                    });
+
+                    visitModal.style.display = "none";
+                    showToast("🎉 Visit Request Scheduled Successfully! The host will contact you.", "success", 5000);
+                    document.getElementById("visitForm").reset();
+                } catch (err) {
+                    console.error("Booking error:", err);
+                    showToast("Could not submit visit. Please try again.", "error");
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = "✓ Confirm Visit Request";
+                }
+            });
+        }
     </script>
 
 </body>

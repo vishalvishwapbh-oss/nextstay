@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NextStay - User Portal</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header class="navbar">
+        <a href="index.html" class="logo">
+            🏠 NextStay <span class="logo-badge">User Portal</span>
+        </a>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="login.html">Switch Portal</a>
+        </nav>
+    </header>
+
+    <div class="auth-page-container">
+        <div class="auth-card">
+            <h1>🏠 NextStay</h1>
+            <h2 id="authHeading">Student Login</h2>
+            <p class="auth-subtitle" id="authSub">Sign in to manage your favorites and bookings.</p>
+
+            <!-- Quick Testing Demo Box -->
+            <div class="demo-box">
+                <strong>⚡ Quick Testing Mode:</strong>
+                <span>Want to test without registering? Click below for instant login.</span>
+                <button type="button" id="quickDemoUserBtn" class="btn-demo">
+                    🚀 1-Click Instant Demo Login
+                </button>
+            </div>
+
+            <!-- Form -->
+            <form id="authForm" onsubmit="return false;">
+                <div class="form-group" id="nameGroup" style="display: none;">
+                    <label for="userName">Full Name</label>
+                    <input type="text" id="userName" class="form-input" placeholder="e.g. Rahul Sharma">
+                </div>
+
+                <div class="form-group">
+                    <label for="userEmail">Email Address</label>
+                    <input type="email" id="userEmail" class="form-input" placeholder="student@example.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="userPassword">Password</label>
+                    <input type="password" id="userPassword" class="form-input" placeholder="Enter at least 6 characters" required>
+                </div>
+
+                <button type="submit" id="userAuthBtn" class="btn-primary">
+                    Login to NextStay
+                </button>
+            </form>
+
+            <div style="margin: 20px 0; border-top: 1px solid var(--border-color); padding-top: 16px;">
+                <p id="toggleAuthText" style="font-size: 14px; color: #64748b;">
+                    Don't have an account? <a href="#" id="toggleAuthLink" style="color: var(--primary); font-weight: 700;">Create Account</a>
+                </p>
+            </div>
+
+            <a href="login.html" class="back-link">← Back to Portal Selection</a>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="data-store.js"></script>
+    <script src="user-login.js"></script>
+
+</body>
+</html>

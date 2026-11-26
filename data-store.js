@@ -1,0 +1,615 @@
+// ==========================================
+// NextStay - Central Data Store & Supabase Sync
+// ==========================================
+
+const SUPABASE_URL = "https://oiczndyhuzcsrpzoaunk.supabase.co";
+const SUPABASE_KEY = "sb_publishable_zwImJd2xLY8y4E-m59JLGw_s4nEctEi";
+const ADMIN_UID = "d22e485f-9f3a-4d9d-bcbb-5a7cdca42708";
+
+let supabaseClient = null;
+if (window.supabase && typeof window.supabase.createClient === "function") {
+    try {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    } catch (e) {
+        console.warn("Supabase initialization error:", e);
+    }
+}
+
+// Initial Demo PG Data (Rich, realistic, high-quality images)
+const INITIAL_PGS = [
+    {
+        id: 1,
+        name: "Stanza Living - Cambridge House",
+        location: "North Campus, Delhi",
+        category: "college",
+        gender: "Boys",
+        rent: 9500,
+        rating: 4.8,
+        reviews_count: 24,
+        sharing: "Single / Twin Sharing",
+        deposit: "₹10,000",
+        facilities: ["High-speed Wi-Fi", "3 Meals Included", "AC", "Laundry", "Daily Cleaning", "Biometric Security", "Gym"],
+        image_url: "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&w=800&q=80",
+        owner_name: "Ramesh Sharma",
+        owner_phone: "+91 98112 34567",
+        description: "Premium student accommodation located just 5 minutes walk from Delhi University North Campus and Vishwavidyalaya Metro Station. Healthy home-cooked meals 3 times a day."
+    },
+    {
+        id: 2,
+        name: "Zolo Elite Luxury Residency",
+        location: "Koramangala 5th Block, Bangalore",
+        category: "college",
+        gender: "Girls",
+        rent: 11000,
+        rating: 4.9,
+        reviews_count: 38,
+        sharing: "Single / Double Sharing",
+        deposit: "₹15,000",
+        facilities: ["High-speed Wi-Fi", "Air Conditioned", "Attached Washroom", "Food Included", "CCTV 24/7", "Power Backup", "Geyser"],
+        image_url: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=800&q=80",
+        owner_name: "Pooja Hegde",
+        owner_phone: "+91 98450 12345",
+        description: "Safe, secure, and luxury PG exclusively for girls near leading educational institutes and IT hubs. 24x7 security warden and biometric entry."
+    },
+    {
+        id: 3,
+        name: "Metro View Executive Stay",
+        location: "Sector 62, Noida (Near Metro)",
+        category: "metro",
+        gender: "Unisex",
+        rent: 7500,
+        rating: 4.5,
+        reviews_count: 19,
+        sharing: "Double / Triple Sharing",
+        deposit: "₹8,000",
+        facilities: ["Wi-Fi", "AC", "RO Water", "Power Backup", "Refrigerator", "Housekeeping", "Balcony"],
+        image_url: "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&w=800&q=80",
+        owner_name: "Amit Verma",
+        owner_phone: "+91 99100 88776",
+        description: "Situated right next to the Blue Line Metro Station. Ideal for college students and working interns with modern amenities and quick transport."
+    },
+    {
+        id: 4,
+        name: "Green Valley Scholar PG",
+        location: "Kothrud, Pune (Near MIT)",
+        category: "college",
+        gender: "Boys",
+        rent: 6500,
+        rating: 4.6,
+        reviews_count: 15,
+        sharing: "Twin / Triple Sharing",
+        deposit: "₹7,000",
+        facilities: ["Wi-Fi", "Pure Veg Meals", "Study Tables", "Hot Water", "Bike Parking", "Water Purifier"],
+        image_url: "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=800&q=80",
+        owner_name: "Sanjay Patil",
+        owner_phone: "+91 94220 54321",
+        description: "Quiet and disciplined student PG just 300 meters from MIT World Peace University. Individual study desks and ergonomic study chairs provided."
+    },
+    {
+        id: 5,
+        name: "City Central Market Stay",
+        location: "Connaught Place, Central Market, Delhi",
+        category: "market",
+        gender: "Unisex",
+        rent: 13500,
+        rating: 4.7,
+        reviews_count: 31,
+        sharing: "Single Private Room",
+        deposit: "₹15,000",
+        facilities: ["High-speed Wi-Fi", "AC", "Gym Access", "Laundry", "Kitchen Access", "Smart TV", "Elevator"],
+        image_url: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&q=80",
+        owner_name: "Vikas Mehra",
+        owner_phone: "+91 98711 22334",
+        description: "Live right where the action is! 2 minutes from markets, multi-cuisine cafes, bookstores, and central transport hubs."
+    },
+    {
+        id: 6,
+        name: "Central Bus Stand Residency",
+        location: "Majestic, Gandhinagar, Bangalore",
+        category: "bus",
+        gender: "Boys",
+        rent: 5500,
+        rating: 4.3,
+        reviews_count: 12,
+        sharing: "Triple / Quad Sharing",
+        deposit: "₹5,000",
+        facilities: ["Wi-Fi", "24/7 Water", "Security", "Individual Lockers", "Mess Facility"],
+        image_url: "https://images.unsplash.com/photo-1540518614846-7ede433c4550?auto=format&fit=crop&w=800&q=80",
+        owner_name: "Naveen Kumar",
+        owner_phone: "+91 97312 34987",
+        description: "Budget-friendly accommodation located adjacent to the inter-state bus terminus and rail station. Pocket-friendly option for students."
+    },
+    {
+        id: 7,
+        name: "Sai Lotus Girls Haven",
+        location: "Viman Nagar, Pune (Near Symbiosis)",
+        category: "college",
+        gender: "Girls",
+        rent: 8500,
+        rating: 4.8,
+        reviews_count: 27,
+        sharing: "Twin Sharing",
+        deposit: "₹9,000",
+        facilities: ["Wi-Fi", "Delicious Homestyle Food", "AC", "Washing Machine", "Security Guard", "CCTV", "Study Lounge"],
+        image_url: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=800&q=80",
+        owner_name: "Sunita Deshmukh",
+        owner_phone: "+91 98230 45678",
+        description: "A warm and homely environment for female college students. Nutritious food served 3 times daily and caring resident warden."
+    },
+    {
+        id: 8,
+        name: "Royal Co-Living & Metro Suites",
+        location: "Sector 29, Gurgaon (Near Metro)",
+        category: "metro",
+        gender: "Unisex",
+        rent: 14000,
+        rating: 4.9,
+        reviews_count: 45,
+        sharing: "Single / Twin Sharing",
+        deposit: "₹18,000",
+        facilities: ["Ultra-fast Wi-Fi", "Fully Furnished", "AC", "Power Backup 24/7", "Gaming Area", "Housekeeping", "Terrace Garden"],
+        image_url: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=80",
+        owner_name: "Rajiv Kapoor",
+        owner_phone: "+91 99990 11223",
+        description: "Designer co-living residence with rooftop lounge, co-working desks, and high-speed fiber internet. 3 minutes from Huda City Centre metro."
+    }
+];
+
+// Initial Demo Visit Requests
+const INITIAL_VISITS = [
+    {
+        id: 101,
+        pg_id: 1,
+        pg_name: "Stanza Living - Cambridge House",
+        visitor_name: "Aman Sharma",
+        visitor_phone: "9876543210",
+        visitor_email: "aman@example.com",
+        visit_date: "2026-12-01",
+        time_slot: "Morning (10 AM - 1 PM)",
+        status: "Pending",
+        created_at: new Date().toISOString()
+    },
+    {
+        id: 102,
+        pg_id: 2,
+        pg_name: "Zolo Elite Luxury Residency",
+        visitor_name: "Sneha Patel",
+        visitor_phone: "9123456780",
+        visitor_email: "sneha@example.com",
+        visit_date: "2026-12-02",
+        time_slot: "Evening (5 PM - 8 PM)",
+        status: "Approved",
+        created_at: new Date().toISOString()
+    }
+];
+
+// LocalStorage Keys
+const KEYS = {
+    PGS: "nextstay_pg_listings",
+    VISITS: "nextstay_visit_requests",
+    USER: "nextstay_current_user",
+    FAVORITES: "nextstay_favorites"
+};
+
+// ==========================================
+// DATA STORE METHODS
+// ==========================================
+
+const DataStore = {
+    // Check if Supabase is active and responding
+    isSupabaseAvailable() {
+        return Boolean(supabaseClient);
+    },
+
+    // Fetch all PGs (Tries Supabase first with fallback)
+    async getAllPGs() {
+        // First check localStorage
+        let localData = null;
+        try {
+            const raw = localStorage.getItem(KEYS.PGS);
+            if (raw) localData = JSON.parse(raw);
+        } catch (e) {
+            console.error("Local data read error:", e);
+        }
+
+        if (!localData || !Array.isArray(localData) || localData.length === 0) {
+            localData = INITIAL_PGS;
+            localStorage.setItem(KEYS.PGS, JSON.stringify(INITIAL_PGS));
+        }
+
+        // Try Supabase in background or if online
+        if (supabaseClient) {
+            try {
+                const timeoutPromise = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error("Supabase timeout")), 3000)
+                );
+                const fetchPromise = supabaseClient.from("pg_listings").select("*").order("id");
+
+                const result = await Promise.race([fetchPromise, timeoutPromise]);
+                if (result && !result.error && result.data && result.data.length > 0) {
+                    // Enrich Supabase records with local defaults if fields are missing
+                    const merged = result.data.map((item, idx) => {
+                        const fallback = INITIAL_PGS[idx % INITIAL_PGS.length];
+                        return {
+                            ...fallback,
+                            ...item,
+                            facilities: Array.isArray(item.facilities) ? item.facilities : fallback.facilities,
+                            rating: item.rating || fallback.rating || 4.5,
+                            gender: item.gender || fallback.gender || "Unisex"
+                        };
+                    });
+                    localStorage.setItem(KEYS.PGS, JSON.stringify(merged));
+                    return merged;
+                }
+            } catch (err) {
+                console.log("Using cached/local PG listings (Supabase offline/timed out).");
+            }
+        }
+
+        return localData;
+    },
+
+    // Get PG by ID
+    async getPGById(id) {
+        const all = await this.getAllPGs();
+        return all.find(p => String(p.id) === String(id)) || null;
+    },
+
+    // Add New PG
+    async addPG(pg) {
+        const all = await this.getAllPGs();
+        const newPG = {
+            id: Date.now(),
+            rating: 4.5,
+            reviews_count: 1,
+            ...pg
+        };
+
+        all.unshift(newPG);
+        localStorage.setItem(KEYS.PGS, JSON.stringify(all));
+
+        // Sync with Supabase if possible
+        if (supabaseClient) {
+            try {
+                await supabaseClient.from("pg_listings").insert([{
+                    name: newPG.name,
+                    location: newPG.location,
+                    rent: Number(newPG.rent),
+                    category: newPG.category,
+                    facilities: newPG.facilities,
+                    image_url: newPG.image_url
+                }]);
+            } catch (e) {
+                console.warn("Supabase insert skipped, saved locally.", e);
+            }
+        }
+
+        return newPG;
+    },
+
+    // Update PG
+    async updatePG(id, updatedFields) {
+        const all = await this.getAllPGs();
+        const index = all.findIndex(p => String(p.id) === String(id));
+        if (index === -1) return null;
+
+        all[index] = { ...all[index], ...updatedFields };
+        localStorage.setItem(KEYS.PGS, JSON.stringify(all));
+
+        if (supabaseClient) {
+            try {
+                await supabaseClient.from("pg_listings")
+                    .update({
+                        name: all[index].name,
+                        location: all[index].location,
+                        rent: Number(all[index].rent),
+                        category: all[index].category,
+                        facilities: all[index].facilities,
+                        image_url: all[index].image_url
+                    })
+                    .eq("id", id);
+            } catch (e) {
+                console.warn("Supabase update skipped, updated locally.");
+            }
+        }
+
+        return all[index];
+    },
+
+    // Delete PG
+    async deletePG(id) {
+        const all = await this.getAllPGs();
+        const filtered = all.filter(p => String(p.id) !== String(id));
+        localStorage.setItem(KEYS.PGS, JSON.stringify(filtered));
+
+        if (supabaseClient) {
+            try {
+                await supabaseClient.from("pg_listings").delete().eq("id", id);
+            } catch (e) {
+                console.warn("Supabase delete skipped, deleted locally.");
+            }
+        }
+
+        return true;
+    },
+
+    // Get Visit Requests
+    async getVisitRequests() {
+        let localVisits = null;
+        try {
+            const raw = localStorage.getItem(KEYS.VISITS);
+            if (raw) localVisits = JSON.parse(raw);
+        } catch (e) {}
+
+        if (!localVisits || !Array.isArray(localVisits)) {
+            localVisits = INITIAL_VISITS;
+            localStorage.setItem(KEYS.VISITS, JSON.stringify(INITIAL_VISITS));
+        }
+
+        if (supabaseClient) {
+            try {
+                const timeoutPromise = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error("Supabase timeout")), 3000)
+                );
+                const fetchPromise = supabaseClient
+                    .from("visit_requests")
+                    .select("id, pg_id, visitor_name, visitor_phone, visit_date, created_at, pg_listings(name)")
+                    .order("created_at", { ascending: false });
+
+                const res = await Promise.race([fetchPromise, timeoutPromise]);
+                if (res && !res.error && res.data && res.data.length > 0) {
+                    const mapped = res.data.map(item => ({
+                        id: item.id,
+                        pg_id: item.pg_id,
+                        pg_name: item.pg_listings?.name || "NextStay PG",
+                        visitor_name: item.visitor_name,
+                        visitor_phone: item.visitor_phone,
+                        visit_date: item.visit_date,
+                        status: item.status || "Pending",
+                        created_at: item.created_at
+                    }));
+                    // Merge local with supabase
+                    const combined = [...mapped];
+                    localVisits.forEach(lv => {
+                        if (!combined.some(c => String(c.id) === String(lv.id))) {
+                            combined.push(lv);
+                        }
+                    });
+                    localStorage.setItem(KEYS.VISITS, JSON.stringify(combined));
+                    return combined;
+                }
+            } catch (e) {
+                console.log("Using local visit requests.");
+            }
+        }
+
+        return localVisits;
+    },
+
+    // Add Visit Request
+    async addVisitRequest(req) {
+        const visits = await this.getVisitRequests();
+        const newReq = {
+            id: Date.now(),
+            status: "Pending",
+            created_at: new Date().toISOString(),
+            ...req
+        };
+
+        visits.unshift(newReq);
+        localStorage.setItem(KEYS.VISITS, JSON.stringify(visits));
+
+        if (supabaseClient) {
+            try {
+                await supabaseClient.from("visit_requests").insert([{
+                    pg_id: Number(req.pg_id) || 1,
+                    visitor_name: req.visitor_name,
+                    visitor_phone: req.visitor_phone,
+                    visit_date: req.visit_date
+                }]);
+            } catch (e) {
+                console.warn("Supabase visit insert skipped, saved locally.");
+            }
+        }
+
+        return newReq;
+    },
+
+    // Update Visit Request Status
+    async updateVisitStatus(id, newStatus) {
+        const visits = await this.getVisitRequests();
+        const item = visits.find(v => String(v.id) === String(id));
+        if (item) {
+            item.status = newStatus;
+            localStorage.setItem(KEYS.VISITS, JSON.stringify(visits));
+            return true;
+        }
+        return false;
+    },
+
+    // Delete Visit Request
+    async deleteVisitRequest(id) {
+        const visits = await this.getVisitRequests();
+        const filtered = visits.filter(v => String(v.id) !== String(id));
+        localStorage.setItem(KEYS.VISITS, JSON.stringify(filtered));
+        return true;
+    },
+
+    // Favorites Management
+    getFavorites() {
+        try {
+            const raw = localStorage.getItem(KEYS.FAVORITES);
+            return raw ? JSON.parse(raw) : [];
+        } catch (e) {
+            return [];
+        }
+    },
+
+    isFavorite(pgId) {
+        const favs = this.getFavorites();
+        return favs.includes(String(pgId));
+    },
+
+    toggleFavorite(pgId) {
+        let favs = this.getFavorites();
+        const idStr = String(pgId);
+        if (favs.includes(idStr)) {
+            favs = favs.filter(id => id !== idStr);
+            localStorage.setItem(KEYS.FAVORITES, JSON.stringify(favs));
+            // Keep legacy favorite-ID key in sync for backwards compatibility
+            localStorage.setItem("favorite-" + idStr, "false");
+            return false;
+        } else {
+            favs.push(idStr);
+            localStorage.setItem(KEYS.FAVORITES, JSON.stringify(favs));
+            localStorage.setItem("favorite-" + idStr, "true");
+            return true;
+        }
+    },
+
+    // User Authentication State
+    getCurrentUser() {
+        try {
+            const raw = localStorage.getItem(KEYS.USER);
+            return raw ? JSON.parse(raw) : null;
+        } catch (e) {
+            return null;
+        }
+    },
+
+    setCurrentUser(user) {
+        if (!user) {
+            localStorage.removeItem(KEYS.USER);
+        } else {
+            localStorage.setItem(KEYS.USER, JSON.stringify(user));
+        }
+    },
+
+    logout() {
+        localStorage.removeItem(KEYS.USER);
+        if (supabaseClient) {
+            try {
+                supabaseClient.auth.signOut();
+            } catch (e) {}
+        }
+    }
+};
+
+// ==========================================
+// GLOBAL TOAST NOTIFICATION UTILITY
+// ==========================================
+
+function showToast(message, type = "success", duration = 3500) {
+    let container = document.getElementById("nextstay-toast-container");
+    if (!container) {
+        container = document.createElement("div");
+        container.id = "nextstay-toast-container";
+        container.style.cssText = `
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 99999;
+            pointer-events: none;
+        `;
+        document.body.appendChild(container);
+    }
+
+    const toast = document.createElement("div");
+    toast.className = `nextstay-toast toast-${type}`;
+
+    const icon = type === "success" ? "✅" : type === "error" ? "❌" : "ℹ️";
+    const bgColor = type === "success" ? "#10b981" : type === "error" ? "#ef4444" : "#4f46e5";
+
+    toast.style.cssText = `
+        background: ${bgColor};
+        color: white;
+        padding: 12px 20px;
+        border-radius: 10px;
+        font-family: inherit;
+        font-size: 14px;
+        font-weight: 600;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        pointer-events: auto;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    `;
+
+    toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+    container.appendChild(toast);
+
+    // Trigger enter animation
+    requestAnimationFrame(() => {
+        toast.style.opacity = "1";
+        toast.style.transform = "translateY(0)";
+    });
+
+    // Fade out and remove
+    setTimeout(() => {
+        toast.style.opacity = "0";
+        toast.style.transform = "translateY(15px)";
+        setTimeout(() => toast.remove(), 300);
+    }, duration);
+}
+
+// ==========================================
+// NAVBAR RENDERER & ACTIVE SESSION HELPER
+// ==========================================
+
+function updateNavbarSession() {
+    const user = DataStore.getCurrentUser();
+    const nav = document.querySelector(".navbar nav");
+    if (!nav) return;
+
+    const favCount = DataStore.getFavorites().length;
+
+    // Update Favorites link text with badge
+    const favLink = nav.querySelector("a[href*='favorites']");
+    if (favLink) {
+        favLink.innerHTML = `Favorites <span class="nav-fav-badge">${favCount}</span>`;
+    }
+
+    // Check if user is logged in
+    const loginLink = nav.querySelector("a[href*='login.html']");
+    const adminLink = nav.querySelector("a[href*='admin.html']");
+
+    if (user) {
+        if (loginLink) {
+            loginLink.innerHTML = `👤 ${user.role === 'admin' ? 'Admin' : (user.name || user.email.split('@')[0])}`;
+            loginLink.href = user.role === 'admin' ? "admin-dashboard.html" : "#profile";
+            loginLink.title = user.email;
+        }
+
+        // Add or ensure logout button exists
+        let logoutBtn = nav.querySelector(".nav-logout-btn");
+        if (!logoutBtn) {
+            logoutBtn = document.createElement("a");
+            logoutBtn.href = "#";
+            logoutBtn.className = "nav-logout-btn";
+            logoutBtn.textContent = "Logout";
+            logoutBtn.onclick = (e) => {
+                e.preventDefault();
+                DataStore.logout();
+                showToast("Logged out successfully!", "info");
+                setTimeout(() => window.location.reload(), 600);
+            };
+            nav.appendChild(logoutBtn);
+        }
+    }
+}
+
+// Auto-run when DOM is ready
+document.addEventListener("DOMContentLoaded", () => {
+    updateNavbarSession();
+});
+
+// Expose on window
+window.DataStore = DataStore;
+window.showToast = showToast;
+window.updateNavbarSession = updateNavbarSession;
