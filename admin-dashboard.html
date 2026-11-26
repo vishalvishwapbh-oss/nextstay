@@ -291,12 +291,27 @@
         let dashboardVisits = [];
 
         document.addEventListener("DOMContentLoaded", async function() {
-            // Check Admin Auth
+            // Strict Admin Auth Verification
             const user = DataStore.getCurrentUser();
-            if (!user || user.role !== "admin") {
-                showToast("Admin session not found. Please log in.", "error");
-                setTimeout(() => window.location.href = "admin.html", 1000);
+            if (!user || user.role !== "admin" || user.id !== ADMIN_UID) {
+                showToast("Admin session not found or unauthorized. Please log in.", "error");
+                setTimeout(() => window.location.href = "admin.html", 800);
                 return;
+            }
+
+            // Also check live Supabase session if online
+            if (supabaseClient) {
+                try {
+                    const { data: authData } = await supabaseClient.auth.getUser();
+                    if (!authData?.user || authData.user.id !== ADMIN_UID) {
+                        DataStore.logout();
+                        showToast("Session expired or unauthorized. Please log in.", "error");
+                        setTimeout(() => window.location.href = "admin.html", 800);
+                        return;
+                    }
+                } catch (e) {
+                    // if offline, continue with verified local session
+                }
             }
 
             setupTabNavigation();

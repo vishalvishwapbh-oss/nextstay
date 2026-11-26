@@ -22,26 +22,17 @@
         <div class="auth-card">
             <h1>🛡️ NextStay Admin</h1>
             <h2>Host & Portal Login</h2>
-            <p class="auth-subtitle">Manage accommodation listings and view visitor leads.</p>
-
-            <!-- Quick Testing Demo Box -->
-            <div class="demo-box" style="background: #eff6ff; border-color: #bfdbfe; color: #1e40af;">
-                <strong>⚡ Quick Test Mode (Recommended for testing):</strong>
-                <span>Click the button below for instant 1-click admin dashboard access.</span>
-                <button type="button" id="quickDemoAdminBtn" class="btn-demo" style="background: #4f46e5;">
-                    🛡️ 1-Click Instant Admin Access
-                </button>
-            </div>
+            <p class="auth-subtitle">Authorized administrator access to manage accommodations and visitor leads.</p>
 
             <form id="adminLoginForm" onsubmit="return false;">
                 <div class="form-group">
                     <label for="adminEmail">Admin Email</label>
-                    <input type="email" id="adminEmail" class="form-input" placeholder="admin@nextstay.com" value="admin@nextstay.com" required>
+                    <input type="email" id="adminEmail" class="form-input" placeholder="Enter admin email address" required>
                 </div>
 
                 <div class="form-group">
                     <label for="adminPassword">Password</label>
-                    <input type="password" id="adminPassword" class="form-input" placeholder="Enter admin password" value="admin123" required>
+                    <input type="password" id="adminPassword" class="form-input" placeholder="Enter admin password" required>
                 </div>
 
                 <button type="submit" id="adminLoginBtn" class="btn-primary" style="background: #1e293b;">
@@ -49,11 +40,7 @@
                 </button>
             </form>
 
-            <div style="margin-top: 20px; font-size: 13px; color: #64748b;">
-                Default credentials: <code>admin@nextstay.com</code> / <code>admin123</code>
-            </div>
-
-            <div style="margin-top: 20px;">
+            <div style="margin-top: 25px;">
                 <a href="index.html" class="back-link">← Return to Homepage</a>
             </div>
         </div>
@@ -66,24 +53,8 @@
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             const adminLoginBtn = document.getElementById("adminLoginBtn");
-            const quickDemoAdminBtn = document.getElementById("quickDemoAdminBtn");
 
-            // Instant Admin Login
-            quickDemoAdminBtn.addEventListener("click", () => {
-                const adminUser = {
-                    id: ADMIN_UID,
-                    email: "admin@nextstay.com",
-                    name: "NextStay System Admin",
-                    role: "admin"
-                };
-                DataStore.setCurrentUser(adminUser);
-                showToast("Admin access granted! Redirecting...", "success");
-                setTimeout(() => {
-                    window.location.href = "admin-dashboard.html";
-                }, 700);
-            });
-
-            // Form Submit
+            // Form Submit - Strict Supabase Authentication
             document.getElementById("adminLoginForm").addEventListener("submit", async (e) => {
                 e.preventDefault();
 
@@ -98,48 +69,51 @@
                 adminLoginBtn.disabled = true;
                 adminLoginBtn.textContent = "Verifying Admin...";
 
-                // Try Supabase auth first
-                let loggedInViaSupabase = false;
-                if (supabaseClient) {
-                    try {
-                        const { data, error } = await supabaseClient.auth.signInWithPassword({
-                            email: email,
-                            password: password
-                        });
-
-                        if (!error && data?.user) {
-                            if (data.user.id === ADMIN_UID || email.includes("admin")) {
-                                loggedInViaSupabase = true;
-                                const adminUser = {
-                                    id: data.user.id,
-                                    email: data.user.email,
-                                    name: "NextStay Admin",
-                                    role: "admin"
-                                };
-                                DataStore.setCurrentUser(adminUser);
-                                showToast("Admin authenticated via Supabase!", "success");
-                                setTimeout(() => window.location.href = "admin-dashboard.html", 800);
-                                return;
-                            }
-                        }
-                    } catch (err) {
-                        console.warn("Supabase admin auth error, checking demo credentials:", err);
+                try {
+                    if (!supabaseClient) {
+                        showToast("Authentication service unavailable. Please check internet connection.", "error");
+                        adminLoginBtn.disabled = false;
+                        adminLoginBtn.textContent = "Login as Administrator";
+                        return;
                     }
-                }
 
-                // Check standard admin test credentials
-                if ((email === "admin@nextstay.com" || email === "admin") && (password === "admin123" || password === "admin")) {
+                    const { data, error } = await supabaseClient.auth.signInWithPassword({
+                        email: email,
+                        password: password
+                    });
+
+                    if (error) {
+                        showToast("Admin login failed: " + error.message, "error");
+                        adminLoginBtn.disabled = false;
+                        adminLoginBtn.textContent = "Login as Administrator";
+                        return;
+                    }
+
+                    // Strict check: Only authorized Admin UID can access
+                    if (!data?.user || data.user.id !== ADMIN_UID) {
+                        await supabaseClient.auth.signOut();
+                        DataStore.logout();
+                        showToast("Access denied! This account does not have administrator privileges.", "error");
+                        adminLoginBtn.disabled = false;
+                        adminLoginBtn.textContent = "Login as Administrator";
+                        return;
+                    }
+
+                    // Success - valid admin authenticated
                     const adminUser = {
-                        id: ADMIN_UID,
-                        email: "admin@nextstay.com",
-                        name: "NextStay Master Admin",
+                        id: data.user.id,
+                        email: data.user.email,
+                        name: "NextStay Administrator",
                         role: "admin"
                     };
                     DataStore.setCurrentUser(adminUser);
-                    showToast("Welcome Administrator! Redirecting...", "success");
-                    setTimeout(() => window.location.href = "admin-dashboard.html", 800);
-                } else {
-                    showToast("Invalid admin credentials. Use admin@nextstay.com / admin123 or 1-Click Access.", "error");
+                    showToast("Admin verified! Redirecting to dashboard...", "success");
+                    setTimeout(() => {
+                        window.location.href = "admin-dashboard.html";
+                    }, 800);
+
+                } catch (err) {
+                    showToast("Authentication error: " + (err.message || "Failed to authenticate"), "error");
                     adminLoginBtn.disabled = false;
                     adminLoginBtn.textContent = "Login as Administrator";
                 }
