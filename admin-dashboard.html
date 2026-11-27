@@ -258,6 +258,16 @@
                         <label for="editPgSharing">Room Type</label>
                         <input type="text" id="editPgSharing" class="form-input">
                     </div>
+
+                    <div class="form-group">
+                        <label for="editOwnerName">Owner / Host Name</label>
+                        <input type="text" id="editOwnerName" class="form-input" placeholder="e.g. Vikas Sharma">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editOwnerPhone">Owner Phone</label>
+                        <input type="tel" id="editOwnerPhone" class="form-input" placeholder="e.g. +91 98765 43210">
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -549,6 +559,8 @@
                 const category = document.getElementById("editPgCategory").value;
                 const gender = document.getElementById("editPgGender").value;
                 const sharing = document.getElementById("editPgSharing").value.trim();
+                const owner_name = document.getElementById("editOwnerName").value.trim();
+                const owner_phone = document.getElementById("editOwnerPhone").value.trim();
                 const image_url = document.getElementById("editPgImage").value.trim();
                 const facilitiesText = document.getElementById("editPgFacilities").value.trim();
                 const facilities = facilitiesText.split(",").map(f => f.trim()).filter(Boolean);
@@ -559,7 +571,7 @@
 
                 try {
                     await DataStore.updatePG(id, {
-                        name, location, rent, category, gender, sharing, image_url, facilities
+                        name, location, rent, category, gender, sharing, owner_name, owner_phone, image_url, facilities
                     });
                     editModal.style.display = "none";
                     showToast("PG details updated successfully!", "success");
@@ -584,6 +596,8 @@
             document.getElementById("editPgCategory").value = pg.category || "college";
             document.getElementById("editPgGender").value = pg.gender || "Boys";
             document.getElementById("editPgSharing").value = pg.sharing || "";
+            document.getElementById("editOwnerName").value = pg.owner_name || "";
+            document.getElementById("editOwnerPhone").value = pg.owner_phone || "";
             document.getElementById("editPgImage").value = pg.image_url || "";
             document.getElementById("editPgFacilities").value = Array.isArray(pg.facilities) ? pg.facilities.join(", ") : (pg.facilities || "");
 

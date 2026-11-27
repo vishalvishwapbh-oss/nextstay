@@ -276,13 +276,23 @@ const DataStore = {
                             cleanName = cleanName.replace(/^[Tt]est\s+/, "Premier ");
                         }
 
+                        // Merge any saved local extras (owner_name, owner_phone, gender, sharing, description)
+                        let pgExtras = {};
+                        try {
+                            pgExtras = JSON.parse(localStorage.getItem("nextstay_pg_extras") || "{}");
+                        } catch (e) {}
+                        const extra = pgExtras[String(item.id)] || pgExtras[(cleanName || "").toLowerCase()] || {};
+
                         return {
                             ...fallback,
                             ...item,
                             name: cleanName,
-                            gender: itemGender,
+                            gender: extra.gender || itemGender,
+                            sharing: extra.sharing || item.sharing || fallback.sharing,
+                            owner_name: extra.owner_name || item.owner_name || fallback.owner_name,
+                            owner_phone: extra.owner_phone || item.owner_phone || fallback.owner_phone,
                             facilities: facilitiesList,
-                            description: itemDesc,
+                            description: extra.description || itemDesc,
                             rating: item.rating || fallback.rating || 4.6
                         };
                     });
@@ -303,6 +313,23 @@ const DataStore = {
         return all.find(p => String(p.id) === String(id)) || null;
     },
 
+    // Helper: save extra PG fields locally (since Supabase pg_listings table doesn't store owner_phone/gender)
+    savePGExtras(id, name, fields) {
+        try {
+            const extras = JSON.parse(localStorage.getItem("nextstay_pg_extras") || "{}");
+            const data = {
+                owner_name: fields.owner_name,
+                owner_phone: fields.owner_phone,
+                gender: fields.gender,
+                sharing: fields.sharing,
+                description: fields.description
+            };
+            if (id) extras[String(id)] = { ...(extras[String(id)] || {}), ...data };
+            if (name) extras[name.toLowerCase()] = { ...(extras[name.toLowerCase()] || {}), ...data };
+            localStorage.setItem("nextstay_pg_extras", JSON.stringify(extras));
+        } catch (e) {}
+    },
+
     // Add New PG
     async addPG(pg) {
         const all = await this.getAllPGs();
@@ -313,20 +340,24 @@ const DataStore = {
             ...pg
         };
 
+        this.savePGExtras(newPG.id, newPG.name, newPG);
         all.unshift(newPG);
         localStorage.setItem(KEYS.PGS, JSON.stringify(all));
 
         // Sync with Supabase if possible
         if (supabaseClient) {
             try {
-                await supabaseClient.from("pg_listings").insert([{
+                const res = await supabaseClient.from("pg_listings").insert([{
                     name: newPG.name,
                     location: newPG.location,
                     rent: Number(newPG.rent),
                     category: newPG.category,
                     facilities: newPG.facilities,
                     image_url: newPG.image_url
-                }]);
+                }]).select();
+                if (res && !res.error && res.data && res.data[0]) {
+                    this.savePGExtras(res.data[0].id, newPG.name, newPG);
+                }
             } catch (e) {
                 console.warn("Supabase insert skipped, saved locally.", e);
             }
@@ -342,6 +373,7 @@ const DataStore = {
         if (index === -1) return null;
 
         all[index] = { ...all[index], ...updatedFields };
+        this.savePGExtras(id, all[index].name, all[index]);
         localStorage.setItem(KEYS.PGS, JSON.stringify(all));
 
         if (supabaseClient) {
