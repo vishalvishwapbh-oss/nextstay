@@ -394,6 +394,13 @@ const DataStore = {
             localStorage.setItem(KEYS.VISITS, JSON.stringify(INITIAL_VISITS));
         }
 
+        let deletedIds = [];
+        let statusOverrides = {};
+        try {
+            deletedIds = JSON.parse(localStorage.getItem("nextstay_deleted_visits") || "[]").map(String);
+            statusOverrides = JSON.parse(localStorage.getItem("nextstay_visit_statuses") || "{}");
+        } catch (e) {}
+
         if (supabaseClient) {
             try {
                 const timeoutPromise = new Promise((_, reject) =>
@@ -401,26 +408,32 @@ const DataStore = {
                 );
                 const fetchPromise = supabaseClient
                     .from("visit_requests")
-                    .select("id, pg_id, visitor_name, visitor_phone, visit_date, created_at, pg_listings(name)")
+                    .select("*, pg_listings(name)")
                     .order("created_at", { ascending: false });
 
                 const res = await Promise.race([fetchPromise, timeoutPromise]);
                 if (res && !res.error && res.data && res.data.length > 0) {
-                    const mapped = res.data.map(item => ({
-                        id: item.id,
-                        pg_id: item.pg_id,
-                        pg_name: item.pg_listings?.name || "NextStay PG",
-                        visitor_name: item.visitor_name,
-                        visitor_phone: item.visitor_phone,
-                        visit_date: item.visit_date,
-                        status: item.status || "Pending",
-                        created_at: item.created_at
-                    }));
+                    const mapped = res.data
+                        .filter(item => !deletedIds.includes(String(item.id)))
+                        .map(item => ({
+                            id: item.id,
+                            pg_id: item.pg_id,
+                            pg_name: item.pg_listings?.name || "NextStay PG",
+                            visitor_name: item.visitor_name,
+                            visitor_phone: item.visitor_phone,
+                            visit_date: item.visit_date,
+                            time_slot: item.time_slot || "",
+                            status: statusOverrides[String(item.id)] || item.status || "Pending",
+                            created_at: item.created_at
+                        }));
                     // Merge local with supabase
                     const combined = [...mapped];
                     localVisits.forEach(lv => {
-                        if (!combined.some(c => String(c.id) === String(lv.id))) {
-                            combined.push(lv);
+                        if (!deletedIds.includes(String(lv.id)) && !combined.some(c => String(c.id) === String(lv.id))) {
+                            combined.push({
+                                ...lv,
+                                status: statusOverrides[String(lv.id)] || lv.status || "Pending"
+                            });
                         }
                     });
                     localStorage.setItem(KEYS.VISITS, JSON.stringify(combined));
@@ -431,7 +444,12 @@ const DataStore = {
             }
         }
 
-        return localVisits;
+        return localVisits
+            .filter(lv => !deletedIds.includes(String(lv.id)))
+            .map(lv => ({
+                ...lv,
+                status: statusOverrides[String(lv.id)] || lv.status || "Pending"
+            }));
     },
 
     // Add Visit Request
@@ -465,21 +483,70 @@ const DataStore = {
 
     // Update Visit Request Status
     async updateVisitStatus(id, newStatus) {
-        const visits = await this.getVisitRequests();
-        const item = visits.find(v => String(v.id) === String(id));
-        if (item) {
-            item.status = newStatus;
-            localStorage.setItem(KEYS.VISITS, JSON.stringify(visits));
-            return true;
+        const idStr = String(id);
+        try {
+            const statusOverrides = JSON.parse(localStorage.getItem("nextstay_visit_statuses") || "{}");
+            statusOverrides[idStr] = newStatus;
+            localStorage.setItem("nextstay_visit_statuses", JSON.stringify(statusOverrides));
+        } catch (e) {}
+
+        try {
+            const raw = localStorage.getItem(KEYS.VISITS);
+            if (raw) {
+                const visits = JSON.parse(raw);
+                const item = visits.find(v => String(v.id) === idStr);
+                if (item) {
+                    item.status = newStatus;
+                    localStorage.setItem(KEYS.VISITS, JSON.stringify(visits));
+                }
+            }
+        } catch (e) {}
+
+        if (supabaseClient) {
+            try {
+                await supabaseClient
+                    .from("visit_requests")
+                    .update({ status: newStatus })
+                    .eq("id", id);
+            } catch (e) {
+                console.warn("Supabase visit status update skipped, saved locally.");
+            }
         }
-        return false;
+
+        return true;
     },
 
     // Delete Visit Request
     async deleteVisitRequest(id) {
-        const visits = await this.getVisitRequests();
-        const filtered = visits.filter(v => String(v.id) !== String(id));
-        localStorage.setItem(KEYS.VISITS, JSON.stringify(filtered));
+        const idStr = String(id);
+        try {
+            const deletedIds = JSON.parse(localStorage.getItem("nextstay_deleted_visits") || "[]").map(String);
+            if (!deletedIds.includes(idStr)) {
+                deletedIds.push(idStr);
+                localStorage.setItem("nextstay_deleted_visits", JSON.stringify(deletedIds));
+            }
+        } catch (e) {}
+
+        try {
+            const raw = localStorage.getItem(KEYS.VISITS);
+            if (raw) {
+                const visits = JSON.parse(raw);
+                const filtered = visits.filter(v => String(v.id) !== idStr);
+                localStorage.setItem(KEYS.VISITS, JSON.stringify(filtered));
+            }
+        } catch (e) {}
+
+        if (supabaseClient) {
+            try {
+                await supabaseClient
+                    .from("visit_requests")
+                    .delete()
+                    .eq("id", id);
+            } catch (e) {
+                console.warn("Supabase visit delete skipped, deleted locally.");
+            }
+        }
+
         return true;
     },
 

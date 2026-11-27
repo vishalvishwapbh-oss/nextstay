@@ -458,6 +458,8 @@
 
             tbody.querySelectorAll(".approve-req-btn").forEach(btn => {
                 btn.addEventListener("click", async () => {
+                    btn.disabled = true;
+                    btn.textContent = "Approving...";
                     await DataStore.updateVisitStatus(btn.dataset.id, "Approved");
                     showToast("Visit request approved!", "success");
                     await refreshDashboardData();
@@ -467,6 +469,8 @@
             tbody.querySelectorAll(".del-req-btn").forEach(btn => {
                 btn.addEventListener("click", async () => {
                     if (confirm("Delete this visit inquiry?")) {
+                        btn.disabled = true;
+                        btn.textContent = "Deleting...";
                         await DataStore.deleteVisitRequest(btn.dataset.id);
                         showToast("Inquiry deleted.", "info");
                         await refreshDashboardData();
