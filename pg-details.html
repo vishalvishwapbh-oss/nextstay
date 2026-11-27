@@ -311,13 +311,16 @@
             const visitModal = document.getElementById("visitModal");
             const contactModal = document.getElementById("contactModal");
 
-            // Open Visit Modal
+            // Open Visit Modal — login required
             document.getElementById("openVisitModalBtn").addEventListener("click", () => {
                 const user = DataStore.getCurrentUser();
-                if (user) {
-                    if (user.name) document.getElementById("visitorName").value = user.name;
-                    if (user.phone) document.getElementById("visitorPhone").value = user.phone;
+                if (!user) {
+                    showToast("🔒 Please login first to schedule a visit.", "error", 3000);
+                    setTimeout(() => { window.location.href = "user-login.html"; }, 1500);
+                    return;
                 }
+                if (user.name) document.getElementById("visitorName").value = user.name;
+                if (user.phone) document.getElementById("visitorPhone").value = user.phone;
                 visitModal.style.display = "flex";
             });
 
@@ -345,6 +348,15 @@
             // Submit Visit Request
             document.getElementById("visitForm").addEventListener("submit", async (e) => {
                 e.preventDefault();
+
+                // Double-check: user must be logged in
+                const currentUser = DataStore.getCurrentUser();
+                if (!currentUser) {
+                    showToast("🔒 Please login first to schedule a visit.", "error", 3000);
+                    visitModal.style.display = "none";
+                    setTimeout(() => { window.location.href = "user-login.html"; }, 1500);
+                    return;
+                }
 
                 const name = document.getElementById("visitorName").value.trim();
                 const phone = document.getElementById("visitorPhone").value.trim();
