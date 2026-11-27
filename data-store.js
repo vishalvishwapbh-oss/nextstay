@@ -412,7 +412,7 @@ const DataStore = {
                     .order("created_at", { ascending: false });
 
                 const res = await Promise.race([fetchPromise, timeoutPromise]);
-                if (res && !res.error && res.data && res.data.length > 0) {
+                if (res && !res.error && Array.isArray(res.data)) {
                     const mapped = res.data
                         .filter(item => !deletedIds.includes(String(item.id)))
                         .map(item => ({
@@ -424,12 +424,15 @@ const DataStore = {
                             visit_date: item.visit_date,
                             time_slot: item.time_slot || "",
                             status: statusOverrides[String(item.id)] || item.status || "Pending",
-                            created_at: item.created_at
+                            created_at: item.created_at,
+                            fromSupabase: true
                         }));
-                    // Merge local with supabase
+                    // Merge only genuine local/demo visits (drop stale cached Supabase rows)
                     const combined = [...mapped];
                     localVisits.forEach(lv => {
-                        if (!deletedIds.includes(String(lv.id)) && !combined.some(c => String(c.id) === String(lv.id))) {
+                        const numId = Number(lv.id);
+                        const isGenuineLocal = !lv.fromSupabase && (numId === 101 || numId === 102 || numId >= 1700000000000);
+                        if (isGenuineLocal && !deletedIds.includes(String(lv.id)) && !combined.some(c => String(c.id) === String(lv.id))) {
                             combined.push({
                                 ...lv,
                                 status: statusOverrides[String(lv.id)] || lv.status || "Pending"
