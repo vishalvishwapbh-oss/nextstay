@@ -301,6 +301,7 @@ button {
     max-width: 1200px;
     margin: 0 auto;
     padding: 50px 20px 0;
+    scroll-margin-top: 85px;
 }
 
 .section-heading {
@@ -1444,6 +1445,17 @@ footer p {
    RESPONSIVE
 ========================= */
 @media (max-width: 900px) {
+    .navbar {
+        padding: 0 20px;
+    }
+    .navbar nav {
+        gap: 12px;
+    }
+    .navbar nav a {
+        font-size: 13px;
+        padding: 6px 10px;
+        white-space: nowrap;
+    }
     .details-grid {
         grid-template-columns: 1fr;
     }

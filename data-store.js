@@ -227,15 +227,63 @@ const DataStore = {
 
                 const result = await Promise.race([fetchPromise, timeoutPromise]);
                 if (result && !result.error && result.data && result.data.length > 0) {
-                    // Enrich Supabase records with local defaults if fields are missing
+                    // Enrich Supabase records with smart defaults
                     const merged = result.data.map((item, idx) => {
                         const fallback = INITIAL_PGS[idx % INITIAL_PGS.length];
+                        
+                        // Smart Gender Detection
+                        let itemGender = item.gender;
+                        if (!itemGender) {
+                            const nameLower = (item.name || "").toLowerCase();
+                            if (nameLower.includes("boy") || nameLower.includes("boys")) {
+                                itemGender = "Boys";
+                            } else if (nameLower.includes("girl") || nameLower.includes("girls")) {
+                                itemGender = "Girls";
+                            } else {
+                                itemGender = fallback.gender || "Unisex";
+                            }
+                        }
+
+                        // Smart Clean Facilities
+                        let facilitiesList = [];
+                        if (Array.isArray(item.facilities)) {
+                            facilitiesList = item.facilities;
+                        } else if (typeof item.facilities === "string") {
+                            facilitiesList = item.facilities.split(",").map(f => f.trim()).filter(Boolean);
+                        } else {
+                            facilitiesList = fallback.facilities;
+                        }
+                        // Capitalize facility words (e.g. "food" -> "Food", "wi-fi" -> "Wi-Fi")
+                        facilitiesList = facilitiesList.map(f => {
+                            if (f.toLowerCase() === "wifi" || f.toLowerCase() === "wi-fi") return "Wi-Fi";
+                            if (f.toLowerCase() === "ac") return "AC";
+                            return f.charAt(0).toUpperCase() + f.slice(1);
+                        });
+
+                        // Smart Realistic Description matching location
+                        let itemDesc = item.description;
+                        if (!itemDesc || itemDesc === fallback.description) {
+                            if (item.location && !item.location.toLowerCase().includes("delhi")) {
+                                itemDesc = `Comfortable, fully-furnished and verified student accommodation in ${item.location}. Features high-speed Wi-Fi, clean surroundings, regular housekeeping, and seamless transport connectivity.`;
+                            } else {
+                                itemDesc = fallback.description;
+                            }
+                        }
+
+                        // Clean realistic title if "Test"
+                        let cleanName = item.name || fallback.name;
+                        if (cleanName.toLowerCase().startsWith("test ")) {
+                            cleanName = cleanName.replace(/^[Tt]est\s+/, "Premier ");
+                        }
+
                         return {
                             ...fallback,
                             ...item,
-                            facilities: Array.isArray(item.facilities) ? item.facilities : fallback.facilities,
-                            rating: item.rating || fallback.rating || 4.5,
-                            gender: item.gender || fallback.gender || "Unisex"
+                            name: cleanName,
+                            gender: itemGender,
+                            facilities: facilitiesList,
+                            description: itemDesc,
+                            rating: item.rating || fallback.rating || 4.6
                         };
                     });
                     localStorage.setItem(KEYS.PGS, JSON.stringify(merged));
@@ -572,7 +620,7 @@ function updateNavbarSession() {
     // Update Favorites link text with badge
     const favLink = nav.querySelector("a[href*='favorites']");
     if (favLink) {
-        favLink.innerHTML = `Favorites <span class="nav-fav-badge">${favCount}</span>`;
+        favLink.innerHTML = `Favorites <span class="nav-fav-badge" id="navFavCount">${favCount}</span>`;
     }
 
     // Check if user is logged in

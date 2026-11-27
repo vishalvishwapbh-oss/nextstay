@@ -57,8 +57,9 @@ async function loadInitialData() {
 
 function updateFavoritesBadge() {
     const favs = DataStore.getFavorites();
-    if (navFavCount) {
-        navFavCount.textContent = favs.length;
+    const badge = document.getElementById("navFavCount") || document.querySelector(".nav-fav-badge");
+    if (badge) {
+        badge.textContent = favs.length;
     }
 }
 
