@@ -457,6 +457,36 @@ const DataStore = {
 
     // Add Visit Request
     async addVisitRequest(req) {
+        let savedInSupabase = false;
+        let supabaseRow = null;
+
+        if (supabaseClient) {
+            try {
+                const res = await supabaseClient
+                    .from("visit_requests")
+                    .insert([{
+                        pg_id: Number(req.pg_id) || 1,
+                        visitor_name: req.visitor_name,
+                        visitor_phone: req.visitor_phone,
+                        visit_date: req.visit_date
+                    }])
+                    .select();
+                if (res && !res.error) {
+                    savedInSupabase = true;
+                    if (res.data && res.data[0]) {
+                        supabaseRow = res.data[0];
+                    }
+                }
+            } catch (e) {
+                console.warn("Supabase visit insert skipped, saving locally.");
+            }
+        }
+
+        if (savedInSupabase) {
+            return supabaseRow || { id: Date.now(), status: "Pending", created_at: new Date().toISOString(), ...req };
+        }
+
+        // Offline / fallback: save locally only if Supabase failed
         const visits = await this.getVisitRequests();
         const newReq = {
             id: Date.now(),
@@ -464,23 +494,8 @@ const DataStore = {
             created_at: new Date().toISOString(),
             ...req
         };
-
         visits.unshift(newReq);
         localStorage.setItem(KEYS.VISITS, JSON.stringify(visits));
-
-        if (supabaseClient) {
-            try {
-                await supabaseClient.from("visit_requests").insert([{
-                    pg_id: Number(req.pg_id) || 1,
-                    visitor_name: req.visitor_name,
-                    visitor_phone: req.visitor_phone,
-                    visit_date: req.visit_date
-                }]);
-            } catch (e) {
-                console.warn("Supabase visit insert skipped, saved locally.");
-            }
-        }
-
         return newReq;
     },
 
